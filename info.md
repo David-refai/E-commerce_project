@@ -3,6 +3,9 @@
 En enkel och tydlig guide för hur alla i teamet ska arbeta med Git och GitHub.
 
 ---
+## Folder structure (.gitkeep)
+Git does not track empty folders. We keep the folder/package structure by adding empty placeholder files named `.gitkeep`.
+Do not delete them unless the folder contains real code/files.
 
 ## 🔧 Första gången
 
