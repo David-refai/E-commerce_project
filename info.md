@@ -9,17 +9,16 @@ En enkel och tydlig guide för hur alla i teamet ska arbeta med Git och GitHub.
 1. Klona (ladda ner) projektet:
 
 ```bash
-git clone <REPO_URL>
+git clone https://github.com/David-refai/E-commerce_project.git
 cd <REPO_NAME>
+```
 Kontrollera att Git är installerat:
-
-bash
-Copy code
+```
 git --version
+```
 Lägg in ditt namn och din e-post (en gång per dator):
 
-bash
-Copy code
+```bash
 git config --global user.name "Ditt Namn"
 git config --global user.email "din.epost@example.com"
 ```
@@ -33,10 +32,6 @@ git config --global user.email "din.epost@example.com"
 git checkout main
 git pull origin main
 git checkout -b feature/kort-beskrivning
-
-# Exempel:
-Copy code
-git checkout -b feature/lägg-till-login
 ```
 # ✍️ Spara ändringar (commit)
 Gör commits ofta och skriv korta, tydliga meddelanden:
