@@ -22,12 +22,14 @@ public class Product {
 
     @NotNull
     @Size(max = 100)
+    @Column(length = 100, nullable = false)
     private String name;
 
     @Size(max = 500)
+    @Column(length = 500)
     private String description;
 
-    @Column(nullable = false, precision = 12, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
     @NotNull
