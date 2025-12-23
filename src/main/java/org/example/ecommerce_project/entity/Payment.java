@@ -37,5 +37,43 @@ public class Payment {
     @PrePersist
     void prePersist() { this.ts = Instant.now(); }
 
+    @PreUpdate
+    void preUpdate() { this.ts = Instant.now(); }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+
+    public PaymentMethod getMethod() {
+        return method;
+    }
+
+    public void setMethod(PaymentMethod method) {
+        this.method = method;
+    }
+
+    public PaymentStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(PaymentStatus status) {
+        this.status = status;
+    }
+
+    public Instant getTs() {
+        return ts;
+    }
+
+    public void setTs(Instant ts) {
+        this.ts = ts;
+    }
 }
 
