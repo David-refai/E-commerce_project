@@ -42,8 +42,8 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
     private Inventory inventory;
 
     @ManyToMany(fetch = FetchType.LAZY)
