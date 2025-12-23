@@ -113,4 +113,15 @@ public class Product {
     public Instant getCreatedAt() {
         return createdAt;
     }
+
+    // Helpers for M:N (to keep sync)
+    public void addCategory(Category category) {
+        categories.add(category);
+        category.getProducts().add(this);
+    }
+
+    public void removeCategory(Category category) {
+        categories.remove(category);
+        category.getProducts().remove(this);
+    }
 }
