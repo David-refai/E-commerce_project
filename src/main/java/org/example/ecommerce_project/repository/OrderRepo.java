@@ -1,6 +1,8 @@
 package org.example.ecommerce_project.repository;
 
-import jakarta.persistence.criteria.Order;
+
+import org.example.ecommerce_project.entity.Order;
+import org.example.ecommerce_project.entity.enums.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
