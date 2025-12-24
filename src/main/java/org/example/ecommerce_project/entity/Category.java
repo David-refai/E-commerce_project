@@ -13,6 +13,7 @@ public class Category {
     @Column(nullable = false, unique = true)
     private String name;
 
+    // Lazy loading because each category can have many products
     @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
     Set<Product> products = new HashSet<>();
 
