@@ -18,20 +18,17 @@ public class CategoryService {
     }
 
     @Transactional
-    public Category createCategory(Category category) {
-        if (category == null) {
-            throw new IllegalArgumentException("Category must not be null");
-        }
-        if (category.getName() == null || category.getName().isBlank()) {
+    public Category createCategory(String category) {
+        if (category == null || category.isBlank()) {
             throw new IllegalArgumentException("Category name must not be blank");
         }
 
-        categoryRepo.findByNameIgnoreCase(category.getName())
+        categoryRepo.findByNameIgnoreCase(category)
                 .ifPresent(existing -> {
                     throw new IllegalArgumentException("Category already exists with name: " + category.getName());
                 });
 
-        return categoryRepo.save(category);
+        return categoryRepo.save(new Category(category));
     }
 
     @Transactional(readOnly = true)
