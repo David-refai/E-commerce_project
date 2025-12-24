@@ -1,6 +1,7 @@
 package org.example.ecommerce_project.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -30,6 +31,7 @@ public class Product {
     private String description;
 
     @Column(nullable = false, precision = 10, scale = 2)
+    @Min(value = 0, message = "Price must be greater than or equal to 0")
     private BigDecimal price;
 
     @NotNull
