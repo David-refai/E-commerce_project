@@ -18,8 +18,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-// TODO
-// Wrap with ErrorHandlerCli
 @Component
 public class ProductCli {
     private final ProductService productService;
@@ -108,8 +106,6 @@ public class ProductCli {
         System.out.print("In stock (*): ");
         String inStockString = scanner.nextLine().trim();
 
-        // TODO
-        // Wrap with ErrorHandlerCli unless already handled by the service
         BigDecimal price = new BigDecimal(priceString);
         boolean active = Stream.of("y", "yes", "t", "true").anyMatch(activeString::equalsIgnoreCase);
         int inStock = Integer.parseInt(inStockString);

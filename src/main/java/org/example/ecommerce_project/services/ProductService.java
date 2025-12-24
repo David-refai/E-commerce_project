@@ -23,8 +23,6 @@ public class ProductService {
         this.productRepo = productRepo;
     }
 
-    // TODO
-    // Add Inventory
     @Transactional
     public void createProduct(String sku, String name, String description, BigDecimal price, Set<Category> categories, boolean active, int inStock) {
         if (sku == null || sku.isBlank()) {
