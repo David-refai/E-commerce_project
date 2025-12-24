@@ -1,7 +1,9 @@
 package org.example.ecommerce_project.cli;
 
 import org.example.ecommerce_project.entity.Customer;
+import org.example.ecommerce_project.exception.ErrorHandlerCli;
 import org.example.ecommerce_project.services.CustomerService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -10,13 +12,17 @@ import java.util.Scanner;
 @Component
 public class CustomerCli {
 
+
+    private final ErrorHandlerCli handler = new ErrorHandlerCli(false);
     // CLI layer for customer operations (uses CustomerService, no DB logic here)
     private final CustomerService customerService;
 
-    // Inject the service used to fetch/create customers
     public CustomerCli(CustomerService customerService) {
         this.customerService = customerService;
     }
+
+    // Inject the service used to fetch/create customers
+
 
     // Shows the customer menu once and executes the selected action
     public void showMenu(Scanner scanner) {
@@ -33,9 +39,9 @@ public class CustomerCli {
         switch (choice) {
         //TODO
             //Should each menu option runs inside a error-handling wrapper,
-            case "1" -> listCustomers();
-            case "2" -> addCustomer(scanner);
-            case "3" ->  findCustomerByEmail(scanner);
+            case "1" -> handler.runWithHandling(this::listCustomers);
+            case "2" -> handler.runWithHandling(() -> addCustomer(scanner));
+            case "3" ->  handler.runWithHandling(() ->findCustomerByEmail(scanner));
             case "0" -> {
                 // Return to previous menu (caller decides what to do next)
             }

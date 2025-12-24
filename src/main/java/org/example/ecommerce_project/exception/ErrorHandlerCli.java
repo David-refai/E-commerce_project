@@ -2,8 +2,8 @@ package org.example.ecommerce_project.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.dao.DataAccessException;
-
 
 public class ErrorHandlerCli {
 
@@ -14,6 +14,8 @@ public class ErrorHandlerCli {
     public ErrorHandlerCli(boolean debug) {
         this.debug = debug;
     }
+
+
 // runWithHandling: Runs the given action safely. It catches AppException, database errors, and any other exception,
 // prints a clear message to the user, and logs full stack traces only when debug is enabled.
 
