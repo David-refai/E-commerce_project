@@ -7,22 +7,21 @@ import jakarta.validation.constraints.Min;
 @Table(name = "inventory")
 public class Inventory {
     @Id
-    @Column(name = "product_id")
+    @Column(name = "product_id", nullable = false)
     private Long productId;
 
-    @Min(0)
+    @Min(value = 0, message = "In stock must be greater than or equal to zero")
     private int inStock;
 
     @OneToOne
     @MapsId
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     public Inventory() {}
 
-    public Inventory(int inStock, Product product) {
+    public Inventory(int inStock) {
         this.inStock = inStock;
-        this.product = product;
     }
 
     public Long getProductId() {
