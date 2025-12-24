@@ -1,7 +1,8 @@
 package org.example.ecommerce_project.repository;
 
 import org.example.ecommerce_project.entity.Product;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 
@@ -15,4 +16,7 @@ public interface ProductRepo extends JpaRepository<Product, Long> {
     List<Product> findByNameContainingIgnoreCase(String q);
 
     List<Product> findByActiveTrue();
+
+    @Query("select distinct p from Product p join p.categories c where lower(c.name) = lower(:category)")
+    List<Product> findByCategoryNameIgnoreCase(@Param("category") String category);
 }
