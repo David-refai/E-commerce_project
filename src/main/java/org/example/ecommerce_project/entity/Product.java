@@ -7,10 +7,7 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "product")
@@ -18,7 +15,7 @@ public class Product {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, updatable = false)
     private String sku;
 
     @NotNull
@@ -35,6 +32,7 @@ public class Product {
     private BigDecimal price;
 
     @NotNull
+    @Column(nullable = false)
     private boolean active;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -43,18 +41,19 @@ public class Product {
     @PrePersist
     void prePersist() { this.createdAt = Instant.now(); }
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<OrderItem> items = new ArrayList<>();
 
-    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @PrimaryKeyJoinColumn
     private Inventory inventory;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    // Eager loading because each product will only have one or a few categories
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "product_category",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
+            joinColumns = @JoinColumn(name = "product_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "category_id", nullable = false)
     )
     private Set<Category> categories = new HashSet<>();
 
@@ -96,6 +95,19 @@ public class Product {
         this.description = description;
     }
 
+    public Set<Category> getCategories() {
+        return categories;
+    }
+
+    public Inventory getInventory() {
+        return inventory;
+    }
+
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
+        inventory.setProduct(this);
+    }
+
     public BigDecimal getPrice() {
         return price;
     }
@@ -116,14 +128,11 @@ public class Product {
         return createdAt;
     }
 
-    // Helpers for M:N (to keep sync)
     public void addCategory(Category category) {
         categories.add(category);
-        category.getProducts().add(this);
     }
 
     public void removeCategory(Category category) {
-        categories.remove(category);
-        category.getProducts().remove(this);
+        categories.removeIf(c -> Objects.equals(c.getId(), category.getId()));
     }
 }
