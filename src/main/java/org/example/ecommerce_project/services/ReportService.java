@@ -1,15 +1,15 @@
-package org.example.ecommerce_project.services;
+package org.example.ecommerce_project.services.report;
 
-import org.example.ecommerce_project.entity.Inventory;
+import org.example.ecommerce_project.dto.TopProductRow;
+import org.example.ecommerce_project.entity.enums.OrderStatus;
+import org.example.ecommerce_project.reports.LowStockRow;
+import org.example.ecommerce_project.reports.TopProductRow;
 import org.example.ecommerce_project.repository.ReportRepo;
-import org.example.ecommerce_project.repository.RevenuePerDayView;
-import org.example.ecommerce_project.repository.TopSellingProductView;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.math.BigDecimal;
+import java.time.*;
 import java.util.List;
 
 @Service
@@ -21,31 +21,25 @@ public class ReportService {
         this.reportRepo = reportRepo;
     }
 
-    @Transactional(readOnly = true)
-    public List<TopSellingProductView> top5BestSellingProducts() {
-        return reportRepo.top5BestSellingProducts();
+    public List<TopProductRow> topProducts(int topN, LocalDate from, LocalDate toExclusive) {
+        Instant fromTs = from.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant toTs = toExclusive.atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+        return reportRepo.findTopProducts(
+                OrderStatus.PAID,
+                fromTs,
+                toTs,
+                PageRequest.of(0, topN)
+        );
     }
 
-    @Transactional(readOnly = true)
-    public List<Inventory> lowStockProducts(int threshold) {
-        if (threshold < 0) {
-            throw new IllegalArgumentException("threshold must be >= 0");
-        }
-        return reportRepo.lowStockProducts(threshold);
+    public List<LowStockRow> lowStock(int threshold) {
+        return inventoryRepo.findLowStock(threshold);
     }
 
-    @Transactional(readOnly = true)
-    public List<RevenuePerDayView> revenuePerDay(LocalDate startDateInclusive, LocalDate endDateInclusive) {
-        if (startDateInclusive == null || endDateInclusive == null) {
-            throw new IllegalArgumentException("startDateInclusive and endDateInclusive are required");
-        }
-        if (endDateInclusive.isBefore(startDateInclusive)) {
-            throw new IllegalArgumentException("endDateInclusive must be on/after startDateInclusive");
-        }
-
-        Instant fromInclusive = startDateInclusive.atStartOfDay(ZoneOffset.UTC).toInstant();
-        Instant toExclusive = endDateInclusive.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
-
-        return reportRepo.revenuePerDay(fromInclusive, toExclusive);
+    public BigDecimal revenueBetween(LocalDate from, LocalDate toExclusive) {
+        Instant fromTs = from.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant toTs = toExclusive.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        return orderRepo.revenueBetween(OrderStatus.PAID, fromTs, toTs);
     }
 }
