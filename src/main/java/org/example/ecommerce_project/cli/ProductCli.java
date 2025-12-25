@@ -34,6 +34,7 @@ public class ProductCli {
         System.out.println("4) Find product by SKU");
         System.out.println("5) Update product");
         System.out.println("6) Disable product");
+        System.out.println("7) List categories");
         System.out.println("0) Back");
         System.out.print("Select: ");
 
@@ -46,6 +47,7 @@ public class ProductCli {
             case "4" -> handler.runWithHandling(() -> findProductBySku(scanner));
             case "5" -> handler.runWithHandling(() -> updateProduct(scanner));
             case "6" -> handler.runWithHandling(() -> disableProduct(scanner));
+            case "7" -> handler.runWithHandling(this::listCategories);
             case "0" -> {
                 // Return to previous menu (caller decides what to do next)
             }
@@ -266,5 +268,15 @@ public class ProductCli {
         System.out.print("SKU: ");
         String sku = scanner.nextLine().trim();
         productService.disableProduct(sku);
+    }
+
+    // Lists the categories
+    private void listCategories() {
+        List<Category> categories = categoryService.getAllCategories();
+
+        System.out.println("Categories:");
+        for (Category category : categories) {
+            System.out.print(category.getName() + ", ");
+        }
     }
 }
