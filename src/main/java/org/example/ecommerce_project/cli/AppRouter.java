@@ -6,12 +6,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.Scanner;
+
 /*
-* Root (parent) CLI entry point.
-*  This class starts the console application and routes the user
-*  to the appropriate sub-CLI (Customer, Product, Order, etc.).
-*  Other services and CLIs can be plugged in here later.
-* */
+ * Root (parent) CLI entry point.
+ *  This class starts the console application and routes the user
+ *  to the appropriate sub-CLI (Customer, Product, Order, etc.).
+ *  Other services and CLIs can be plugged in here later.
+ * */
 @Component
 public class AppRouter implements CommandLineRunner {
 
@@ -26,6 +27,7 @@ public class AppRouter implements CommandLineRunner {
         this.orderCli = orderCli;
         this.cartCli = cartCli;
     }
+
     @NullMarked
     @Override
     public void run(String... args) {

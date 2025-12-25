@@ -5,5 +5,6 @@ import java.time.LocalDate;
 
 public interface RevenuePerDayView {
     LocalDate getDay();
+
     BigDecimal getRevenue();
 }

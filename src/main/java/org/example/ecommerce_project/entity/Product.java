@@ -12,7 +12,8 @@ import java.util.*;
 @Entity
 @Table(name = "product")
 public class Product {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true, updatable = false)
@@ -37,17 +38,11 @@ public class Product {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
-
-    @PrePersist
-    void prePersist() { this.createdAt = Instant.now(); }
-
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<OrderItem> items = new ArrayList<>();
-
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @PrimaryKeyJoinColumn
     private Inventory inventory;
-
     // Eager loading because each product will only have one or a few categories
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -57,7 +52,8 @@ public class Product {
     )
     private Set<Category> categories = new HashSet<>();
 
-    public Product() {}
+    public Product() {
+    }
 
     public Product(String sku, String name, String description, BigDecimal price, boolean active) {
         this.sku = sku;
@@ -65,6 +61,11 @@ public class Product {
         this.description = description;
         this.price = price;
         this.active = active;
+    }
+
+    @PrePersist
+    void prePersist() {
+        this.createdAt = Instant.now();
     }
 
     public Long getId() {

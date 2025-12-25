@@ -11,6 +11,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "orders")
+
 public class Order {
 
     @Id
@@ -117,4 +118,16 @@ public class Order {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", customer=" + customer +
+                ", status=" + status +
+                ", total=" + total +
+                ", createdAt=" + createdAt +
+                ", items=" + items +
+                ", payment=" + payment +
+                '}';
+    }
 }

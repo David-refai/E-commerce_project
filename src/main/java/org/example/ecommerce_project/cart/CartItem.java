@@ -12,8 +12,13 @@ public class CartItem {
         this.qty = qty;
     }
 
-    public Long getProductId() { return productId; }
-    public int getQty() { return qty; }
+    public Long getProductId() {
+        return productId;
+    }
+
+    public int getQty() {
+        return qty;
+    }
 
     public void addQty(int add) {
         if (add <= 0) throw new IllegalArgumentException("add must be positive");

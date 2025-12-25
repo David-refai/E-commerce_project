@@ -20,6 +20,29 @@ public class InventoryService {
         this.productRepo = productRepo;
     }
 
+    /**
+     * TODO: Placeholder logic. 👇
+     * Subject to change after full investigation and verification
+     * of requirements and business constraints.
+     */
+    private static void requirePositiveId(Long id) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("productId must be a positive number");
+        }
+    }
+
+    private static void requirePositive(int value, String name) {
+        if (value <= 0) {
+            throw new IllegalArgumentException(name + " must be positive");
+        }
+    }
+
+    private static void requireNonNegative(int value, String name) {
+        if (value < 0) {
+            throw new IllegalArgumentException(name + " must be >= 0");
+        }
+    }
+
     @Transactional(readOnly = true)
     public int getStockForProduct(Long productId) {
         requirePositiveId(productId); // TODO 👈
@@ -100,29 +123,5 @@ public class InventoryService {
 
             return inventoryRepo.save(inv);
         });
-    }
-
-
-   /**
-    * TODO: Placeholder logic. 👇
-    * Subject to change after full investigation and verification
-    * of requirements and business constraints.
-    */
-    private static void requirePositiveId(Long id) {
-        if (id == null || id <= 0) {
-            throw new IllegalArgumentException("productId must be a positive number");
-        }
-    }
-
-    private static void requirePositive(int value, String name) {
-        if (value <= 0) {
-            throw new IllegalArgumentException(name + " must be positive");
-        }
-    }
-
-    private static void requireNonNegative(int value, String name) {
-        if (value < 0) {
-            throw new IllegalArgumentException(name + " must be >= 0");
-        }
     }
 }

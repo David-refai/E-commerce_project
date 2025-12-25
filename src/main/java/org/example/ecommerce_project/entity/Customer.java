@@ -9,9 +9,10 @@ import java.util.List;
 
 @Entity
 @Table(name = "customer")
-public class Customer{
+public class Customer {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "Email must not be blank")

@@ -1,15 +1,12 @@
 package org.example.ecommerce_project.cli;
 
-import org.example.ecommerce_project.dto.OrderItemRequest;
 import org.example.ecommerce_project.entity.Order;
 import org.example.ecommerce_project.entity.OrderItem;
 import org.example.ecommerce_project.entity.enums.OrderStatus;
 import org.example.ecommerce_project.exception.ErrorHandlerCli;
 import org.example.ecommerce_project.services.OrderService;
-import org.example.ecommerce_project.services.PaymentService;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -93,48 +90,16 @@ public class OrderCli {
         }
     }
 
-    private void createOrder(Scanner scanner) {
-        System.out.print("Customer ID: ");
-        Long customerId = Long.parseLong(scanner.nextLine().trim()); // NumberFormatException handled centrally
-
-        List<OrderItemRequest> items = new ArrayList<>();
-
-        while (true) {
-            System.out.print("Product ID (blank to finish): ");
-            String productIdInput = scanner.nextLine().trim();
-            if (productIdInput.isEmpty()) break;
-
-            long productId = Long.parseLong(productIdInput);
-
-            Integer qty = null;
-            while (qty == null) {
-                System.out.print("Quantity: ");
-                String qtyInput = scanner.nextLine().trim();
-                try {
-                    qty = Integer.parseInt(qtyInput);
-                } catch (NumberFormatException ex) {
-                    System.out.println("Invalid quantity, try again.");
-                }
-            }
-
-            items.add(new OrderItemRequest(productId, qty));
-        }
-
-        if (items.isEmpty()) {
-            System.out.println("No items, order not created.");
-            return;
-        }
-        Order order = orderService.createOrder(customerId, items);
-        System.out.println("Order created with id: " + order.getId() + ", total: " + order.getTotal());
-    }
-
     private void showOrderDetails(Scanner scanner) {
         System.out.print("Order ID: ");
         Long orderId = Long.parseLong(scanner.nextLine().trim());
 
         Order order = orderService.getOrder(orderId);
-
-        System.out.printf("Order %d, customerId=%d, status=%s, total=%.2f%n",
+        System.out.println();
+        System.out.println("-------Order-------");
+        System.out.println("ID   | CustomerId | Status    | Total");
+        System.out.println("-----+------------+-----------+-----------");
+        System.out.printf("%-4d | %-10d | %-9s | %9.2f%n",
                 order.getId(),
                 order.getCustomer().getId(),
                 order.getStatus(),
@@ -147,10 +112,13 @@ public class OrderCli {
             return;
         }
 
-        System.out.println("Items:");
+
+        System.out.println();
+        System.out.println("-------Order Details-------");
+        System.out.println("productId   | qty | unitPrice    | lineTotal");
+        System.out.println("-----+------------+-----------+-----------");
         for (OrderItem item : items) {
-            System.out.printf(
-                    "  productId=%d, qty=%d, unitPrice=%.2f, lineTotal=%.2f%n",
+            System.out.printf("%-4d | %-10d | %-9s | %9.2f%n",
                     item.getProduct().getId(),
                     item.getQty(),
                     item.getUnitPrice(),
@@ -167,4 +135,4 @@ public class OrderCli {
         System.out.println("Order cancelled: " + orderId);
     }
 
-    }
+}

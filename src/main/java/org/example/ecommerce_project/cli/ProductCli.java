@@ -1,20 +1,16 @@
 package org.example.ecommerce_project.cli;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.example.ecommerce_project.dto.ProductUpdateRequest;
 import org.example.ecommerce_project.entity.Category;
 import org.example.ecommerce_project.entity.Product;
-import org.example.ecommerce_project.dto.ProductUpdateRequest;
 import org.example.ecommerce_project.exception.ErrorHandlerCli;
 import org.example.ecommerce_project.services.CategoryService;
 import org.example.ecommerce_project.services.ProductService;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -252,8 +248,8 @@ public class ProductCli {
             for (String categoryName : categoryNames) {
                 // Check if the category exists, if not - skip it
                 //try {
-                    Category category = categoryService.getCategoryByName(categoryName);
-                    categories.add(category);
+                Category category = categoryService.getCategoryByName(categoryName);
+                categories.add(category);
                 //} catch (EntityNotFoundException ignored) {}
             }
         }

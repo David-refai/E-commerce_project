@@ -1,12 +1,19 @@
 package org.example.ecommerce_project.services;
 
 import org.example.ecommerce_project.dto.OrderItemRequest;
-import org.example.ecommerce_project.entity.*;
-import org.example.ecommerce_project.entity.enums.*;
+import org.example.ecommerce_project.entity.Customer;
+import org.example.ecommerce_project.entity.Order;
+import org.example.ecommerce_project.entity.OrderItem;
+import org.example.ecommerce_project.entity.Product;
+import org.example.ecommerce_project.entity.enums.OrderStatus;
+import org.example.ecommerce_project.entity.enums.PaymentStatus;
 import org.example.ecommerce_project.exception.AppException;
-import org.example.ecommerce_project.repository.*;
+import org.example.ecommerce_project.repository.CustomerRepo;
+import org.example.ecommerce_project.repository.OrderRepo;
+import org.example.ecommerce_project.repository.ProductRepo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
@@ -40,20 +47,21 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public Order getOrder(Long id) {
-        return orderRepository.findById(id)
-                .orElseThrow(() -> AppException.notFound("Order not found with id: " + id));
+        return orderRepository.findByIdWithDetails(id)
+                .orElseThrow(() -> AppException.notFound("Order not found: " + id));
     }
+
 
     /**
      * Creates a new order for a customer with the given items.
      * Business rules:
-     *  - Customer must exist
-     *  - Order must contain at least one item
-     *  - Product must exist and be active
-     *  - Inventory is reserved for each item
-     *  - Order status is set to NEW
-     *  - Each OrderItem calculates its line total automatically
-     *  - Order total is calculated automatically from OrderItems
+     * - Customer must exist
+     * - Order must contain at least one item
+     * - Product must exist and be active
+     * - Inventory is reserved for each item
+     * - Order status is set to NEW
+     * - Each OrderItem calculates its line total automatically
+     * - Order total is calculated automatically from OrderItems
      */
 
     @Transactional
@@ -76,9 +84,7 @@ public class OrderService {
             Product product = productRepository.findById(req.productId())
                     .orElseThrow(() -> AppException.notFound("Product not found with id: " + req.productId()));
 
-            OrderItem item = buildOrderItem(req, product, savedOrder);
-
-            savedOrder.addItem(item);
+            buildOrderItem(req, product, savedOrder);
         }
 
 
@@ -96,7 +102,7 @@ public class OrderService {
         if (!product.isActive()) {
             throw AppException.businessRule("Product is not active: " + product.getSku());
 
-         }
+        }
         // Reserve inventory (throws if not enough)
         inventoryService.reserveStock(product.getId(), req.quantity());
 

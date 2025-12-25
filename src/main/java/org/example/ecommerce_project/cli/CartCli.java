@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.Scanner;
+
 @Component
 public class CartCli {
 
@@ -55,7 +56,8 @@ public class CartCli {
                     case "2" -> add(sc);
                     case "3" -> remove(sc);
                     case "4" -> show();
-                    case "5" -> checkout(sc);
+                    case "5" -> clearCart();
+                    case "6" -> checkout(sc);
                     case "0" -> running = false;
                     default -> System.out.println("Unknown option.");
                 }
@@ -74,7 +76,8 @@ public class CartCli {
         System.out.println("2) Add product");
         System.out.println("3) Remove product");
         System.out.println("4) Show cart");
-        System.out.println("5) Checkout");
+        System.out.println("5) Clear Cart");
+        System.out.println("6) Checkout");
         System.out.println("0) Back");
         System.out.print("> ");
     }
@@ -161,13 +164,28 @@ public class CartCli {
         System.out.println("ID   | CustomerId | Status    | Total");
         System.out.println("-----+------------+-----------+-----------");
 
-            System.out.printf(
-                    "%-4d | %-10d | %-9s | %9.2f%n",
-                    order.getId(),
-                    order.getCustomer().getId(),
-                    order.getStatus(),
-                    order.getTotal()
-            );
+        System.out.printf(
+                "%-4d | %-10d | %-9s | %9.2f%n",
+                order.getId(),
+                order.getCustomer().getId(),
+                order.getStatus(),
+                order.getTotal()
+        );
+    }
+
+    private void clearCart() {
+        if (selectedCustomerId == null || selectedCustomerId <= 0) {
+            throw AppException.validation("Customer must be selected before clearing the cart");
+        }
+        Cart cart = cartService.getCart(selectedCustomerId);
+        if (cart.isEmpty()) {
+            System.out.println("ℹ️ Cart is already empty.");
+            return;
+        }
+
+        cartService.clearCart(selectedCustomerId);
+        System.out.println("✅ Cart cleared.");
     }
 
 }
+    

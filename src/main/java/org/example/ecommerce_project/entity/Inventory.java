@@ -18,7 +18,8 @@ public class Inventory {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    public Inventory() {}
+    public Inventory() {
+    }
 
     public Inventory(int inStock) {
         this.inStock = inStock;

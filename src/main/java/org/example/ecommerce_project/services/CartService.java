@@ -1,6 +1,7 @@
 package org.example.ecommerce_project.services;
 
 import org.example.ecommerce_project.cart.Cart;
+import org.example.ecommerce_project.cart.CartItem;
 import org.example.ecommerce_project.entity.Product;
 import org.example.ecommerce_project.exception.AppException;
 import org.example.ecommerce_project.repository.ProductRepo;
@@ -25,7 +26,7 @@ public class CartService {
 
     // Get or create cart for customer
     public Cart getCart(Long customerId) {
-        if (customerId == null || customerId <= 0) throw new IllegalArgumentException("customerId must be positive");
+        if (customerId == null || customerId <= 0) throw AppException.validation("customerId must be positive");
         return carts.computeIfAbsent(customerId, Cart::new);
     }
 
@@ -34,7 +35,7 @@ public class CartService {
         if (qty <= 0) throw AppException.validation("qty must be positive");
 
         Product product = productRepo.findById(productId)
-                .orElseThrow(() ->  AppException.notFound("Product not found: " + productId));
+                .orElseThrow(() -> AppException.notFound("Product not found: " + productId));
 
         if (!product.isActive()) {
             throw AppException.businessRule("Product is not active: " + product.getSku());
@@ -45,7 +46,7 @@ public class CartService {
         int stock = inventoryService.getStockForProduct(productId);
         int currentInCart = cart.getItems().stream()
                 .filter(i -> i.getProductId().equals(productId))
-                .mapToInt(i -> i.getQty())
+                .mapToInt(CartItem::getQty)
                 .sum();
 
         if (currentInCart + qty > stock) {
@@ -56,7 +57,7 @@ public class CartService {
     }
 
     public void removeFromCart(Long customerId, Long productId, int qty) {
-        if (qty <= 0) throw new IllegalArgumentException("qty must be positive");
+        if (qty <= 0) throw AppException.validation("qty must be positive");
         Cart cart = getCart(customerId);
         cart.remove(productId, qty);
     }

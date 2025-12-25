@@ -105,7 +105,7 @@ public class ProductService {
             throw new IllegalArgumentException("SKU must not be blank");
         }
         if (update == null) {
-            throw  AppException.businessRule("Update request must not be null");
+            throw AppException.businessRule("Update request must not be null");
         }
 
         return productRepo.findBySku(sku).map(tmp -> {

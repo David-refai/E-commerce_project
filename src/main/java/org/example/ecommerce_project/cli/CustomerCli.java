@@ -36,11 +36,11 @@ public class CustomerCli {
         String choice = scanner.nextLine().trim();
 
         switch (choice) {
-        //TODO
+            //TODO
             //Should each menu option runs inside a error-handling wrapper,
             case "1" -> handler.runWithHandling(this::listCustomers);
             case "2" -> handler.runWithHandling(() -> addCustomer(scanner));
-            case "3" ->  handler.runWithHandling(() ->findCustomerByEmail(scanner));
+            case "3" -> handler.runWithHandling(() -> findCustomerByEmail(scanner));
             case "0" -> {
                 // Return to previous menu (caller decides what to do next)
             }

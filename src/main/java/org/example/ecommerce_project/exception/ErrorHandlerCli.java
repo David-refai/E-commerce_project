@@ -2,7 +2,6 @@ package org.example.ecommerce_project.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Bean;
 import org.springframework.dao.DataAccessException;
 
 public class ErrorHandlerCli {

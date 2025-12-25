@@ -35,11 +35,11 @@ public interface ReportRepo extends Repository<Inventory, Long> {
 
     @Query(
             """
-                select i
-                from Inventory i
-                join fetch i.product p
-                where i.inStock < :threshold
-            """
+                        select i
+                        from Inventory i
+                        join fetch i.product p
+                        where i.inStock < :threshold
+                    """
     )
     List<Inventory> lowStockProducts(@Param("threshold") int threshold);
 

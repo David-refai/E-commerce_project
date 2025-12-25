@@ -1,8 +1,6 @@
 package org.example.ecommerce_project.entity;
 
 import jakarta.persistence.*;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 import org.example.ecommerce_project.entity.enums.PaymentMethod;
 import org.example.ecommerce_project.entity.enums.PaymentStatus;
 
@@ -12,7 +10,8 @@ import java.time.Instant;
 @Table(name = "payment")
 public class Payment {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne(optional = false, fetch = FetchType.LAZY)
@@ -35,10 +34,14 @@ public class Payment {
     private Instant ts;
 
     @PrePersist
-    void prePersist() { this.ts = Instant.now(); }
+    void prePersist() {
+        this.ts = Instant.now();
+    }
 
     @PreUpdate
-    void preUpdate() { this.ts = Instant.now(); }
+    void preUpdate() {
+        this.ts = Instant.now();
+    }
 
     public Long getId() {
         return id;

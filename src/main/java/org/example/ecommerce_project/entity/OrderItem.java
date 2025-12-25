@@ -6,12 +6,14 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Objects;
 
 @Entity
 @Table(name = "order_item")
 public class OrderItem {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -30,10 +32,11 @@ public class OrderItem {
     @Column(name = "unit_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal unitPrice;
 
-    @Column(name="line_total", nullable=false, precision=12, scale=2)
+    @Column(name = "line_total", nullable = false, precision = 12, scale = 2)
     private BigDecimal lineTotal;
 
-    @PrePersist @PreUpdate
+    @PrePersist
+    @PreUpdate
     void calcTotals() {
         this.lineTotal = unitPrice
                 .multiply(BigDecimal.valueOf(qty))
@@ -82,5 +85,29 @@ public class OrderItem {
 
     public BigDecimal getLineTotal() {
         return lineTotal;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        OrderItem orderItem = (OrderItem) o;
+        return getQty() == orderItem.getQty() && Objects.equals(getId(), orderItem.getId()) && Objects.equals(getOrder(), orderItem.getOrder()) && Objects.equals(getProduct(), orderItem.getProduct()) && Objects.equals(getUnitPrice(), orderItem.getUnitPrice()) && Objects.equals(getLineTotal(), orderItem.getLineTotal());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getOrder(), getProduct(), getQty(), getUnitPrice(), getLineTotal());
+    }
+
+    @Override
+    public String toString() {
+        return "OrderItem{" +
+                "id=" + id +
+                ", order=" + order +
+                ", product=" + product +
+                ", qty=" + qty +
+                ", unitPrice=" + unitPrice +
+                ", lineTotal=" + lineTotal +
+                '}';
     }
 }

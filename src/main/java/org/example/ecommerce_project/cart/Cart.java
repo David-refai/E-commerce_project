@@ -14,7 +14,9 @@ public class Cart {
         this.customerId = customerId;
     }
 
-    public Long getCustomerId() { return customerId; }
+    public Long getCustomerId() {
+        return customerId;
+    }
 
     public Collection<CartItem> getItems() {
         return items.values();

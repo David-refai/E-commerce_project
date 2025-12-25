@@ -7,17 +7,17 @@ import java.util.Set;
 
 @Entity
 public class Category {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, unique = true)
-    private String name;
-
     // Lazy loading because each category can have many products
     @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
     Set<Product> products = new HashSet<>();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(nullable = false, unique = true)
+    private String name;
 
-    public Category() {}
+    public Category() {
+    }
 
     public Category(String name) {
         this.name = name;

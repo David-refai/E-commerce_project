@@ -11,8 +11,6 @@ import org.example.ecommerce_project.repository.PaymentRepo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 public class PaymentService {
     private static final double APPROVE_PROBABILITY = 0.9;
