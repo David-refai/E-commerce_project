@@ -20,12 +20,14 @@ public class AppRouter implements CommandLineRunner {
     private final ProductCli productCli;
     private final OrderCli orderCli;
     private final CartCli cartCli;
+    private final ReportCli reportCli;
 
-    public AppRouter(CustomerCli customerCli, ProductCli productCli, OrderCli orderCli, CartCli cartCli) {
+    public AppRouter(CustomerCli customerCli, ProductCli productCli, OrderCli orderCli, CartCli cartCli, ReportCli reportCli) {
         this.customerCli = customerCli;
         this.productCli = productCli;
         this.orderCli = orderCli;
         this.cartCli = cartCli;
+        this.reportCli = reportCli;
     }
 
     @NullMarked
@@ -50,7 +52,8 @@ public class AppRouter implements CommandLineRunner {
         System.out.println("1) Customers");
         System.out.println("2) Products");
         System.out.println("3) Orders & payments");
-        System.out.println("4) Cart");
+        System.out.println("4) Add to Cart");
+        System.out.println("5) Report");
         System.out.println("0) Exit");
         System.out.print("Select: ");
 
@@ -61,6 +64,7 @@ public class AppRouter implements CommandLineRunner {
             case "2" -> productCli.showMenu(scanner); // Future extension
             case "3" -> orderCli.showMenu(scanner);
             case "4" -> cartCli.run(scanner);
+            case "5" -> reportCli.run(scanner);
             case "0" -> {
                 return false;
             }

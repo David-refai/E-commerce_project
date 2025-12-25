@@ -1,13 +1,7 @@
-package org.example.ecommerce_project.repository;
+package org.example.ecommerce_project.repository.report;
 
-import org.example.ecommerce_project.dto.DailyRevenueRow;
 import org.example.ecommerce_project.dto.LowStockRow;
 import org.example.ecommerce_project.dto.TopProductRow;
-import org.example.ecommerce_project.entity.Inventory;
-import org.example.ecommerce_project.entity.enums.OrderStatus;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.Repository;
-import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.time.Instant;
