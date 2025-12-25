@@ -94,12 +94,12 @@ public class ProductCli {
         System.out.print("Price (*): ");
         String priceString = scanner.nextLine().trim();
 
-        Set<Category> categories = addCategories(scanner);
+        Set<Category> categories = addCategories(scanner, "Categories for this product (comma separated, creates new categories if they don't exist): ");
 
         System.out.print("Active (Y/N) (*): ");
         String activeString = scanner.nextLine().trim();
 
-        System.out.print("In stock (*): ");
+        System.out.print("Quantity in stock (*): ");
         String inStockString = scanner.nextLine().trim();
 
         BigDecimal price = new BigDecimal(priceString);
@@ -111,25 +111,33 @@ public class ProductCli {
     }
 
     // Helper method that reads category input from the user and returns the categories to add
-    private Set<Category> addCategories(Scanner scanner) {
-        Set<Category> categories = new HashSet<>();
+    private Set<Category> addCategories(Scanner scanner, String prompt) {
+        List<Category> categories = categoryService.getAllCategories();
+        Set<Category> newCategories = new HashSet<>();
         String categoryString;
-        System.out.print("Categories to add (comma separated): ");
+
+        System.out.println("Current categories: ");
+        for (Category category : categories) {
+            System.out.print(category.getName() + ", ");
+        }
+        System.out.println();
+        System.out.print(prompt);
         categoryString = scanner.nextLine().trim();
+
         if (!categoryString.isBlank()) {
             String[] categoryNames = categoryString.split(",");
             for (String categoryName : categoryNames) {
                 Category category;
                 // Check if the category exists, if not - create it
                 try {
-                    category = categoryService.getCategoryByName(categoryName);
+                    category = categoryService.getCategoryByName(categoryName.trim());
                 } catch (EntityNotFoundException e) {
-                    category = categoryService.createCategory(categoryName);
+                    category = categoryService.createCategory(categoryName.trim());
                 }
-                categories.add(category);
+                newCategories.add(category);
             }
         }
-        return categories;
+        return newCategories;
     }
 
     // Finds products by name and prints the result
@@ -221,11 +229,11 @@ public class ProductCli {
         if (!categories.isEmpty()) {
             System.out.println("Current categories:");
             for (Category category : categories) {
-                System.out.println(category.getName());
+                System.out.print(category.getName() + ", ");
             }
             categoriesForRemoval = removeCategories(scanner);
         }
-        Set<Category> categoriesForAddition = addCategories(scanner);
+        Set<Category> categoriesForAddition = addCategories(scanner, "Categories to add (comma separated): ");
 
         update.setCategoriesForRemoval(categoriesForRemoval);
         update.setCategoriesForAddition(categoriesForAddition);
@@ -246,11 +254,8 @@ public class ProductCli {
         if (!categoryString.isBlank()) {
             String[] categoryNames = categoryString.split(",");
             for (String categoryName : categoryNames) {
-                // Check if the category exists, if not - skip it
-                //try {
                 Category category = categoryService.getCategoryByName(categoryName);
                 categories.add(category);
-                //} catch (EntityNotFoundException ignored) {}
             }
         }
         return categories;
