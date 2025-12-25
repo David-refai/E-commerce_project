@@ -3,7 +3,6 @@ package org.example.ecommerce_project.cli;
 import org.example.ecommerce_project.entity.Customer;
 import org.example.ecommerce_project.exception.ErrorHandlerCli;
 import org.example.ecommerce_project.services.CustomerService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

@@ -12,7 +12,8 @@ import java.util.List;
 @Table(name = "orders")
 public class Order {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -23,27 +24,54 @@ public class Order {
     @Column(nullable = false, length = 16)
     private OrderStatus status = OrderStatus.NEW;
 
+    // Order total (calculated from items)
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal total = BigDecimal.ZERO;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @PrePersist
-    void prePersist() { this.createdAt = Instant.now(); }
-
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private Payment payment;
 
-    public Long getId() {
-        return id;
+    @PrePersist
+    void prePersist() {
+        this.createdAt = Instant.now();
+        recalcTotal();
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    @PreUpdate
+    void preUpdate() {
+        recalcTotal();
+    }
+
+    // Recalculate total from items
+    public void recalcTotal() {
+        this.total = items.stream()
+                .map(OrderItem::getLineTotal)
+                .filter(v -> v != null)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, java.math.RoundingMode.HALF_UP);
+    }
+
+    // Add item and sync relation
+    public void addItem(OrderItem item) {
+        items.add(item);
+        item.setOrder(this);
+    }
+
+    // Remove item and sync relation
+    public void removeItem(OrderItem item) {
+        items.remove(item);
+        item.setOrder(null);
+    }
+
+    // getters/setters (no setTotal, no setCreatedAt)
+    public Long getId() {
+        return id;
     }
 
     public Customer getCustomer() {
@@ -66,24 +94,12 @@ public class Order {
         return total;
     }
 
-    public void setTotal(BigDecimal total) {
-        this.total = total;
-    }
-
     public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public List<OrderItem> getItems() {
         return items;
-    }
-
-    public void setItems(List<OrderItem> items) {
-        this.items = items;
     }
 
     public Payment getPayment() {
@@ -91,6 +107,13 @@ public class Order {
     }
 
     public void setPayment(Payment payment) {
+        if (this.payment != null) {
+            this.payment.setOrder(null);
+        }
         this.payment = payment;
+        if (payment != null) {
+            payment.setOrder(this);
+        }
     }
+
 }

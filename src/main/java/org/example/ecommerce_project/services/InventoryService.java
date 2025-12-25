@@ -46,7 +46,7 @@ public class InventoryService {
      * Increase stock by a positive amount. Creates inventory row if missing.
      */
     @Transactional
-    public Inventory increaseStock(Long productId, int quantity) {
+    public Inventory releaseStock(Long productId, int quantity) {
         requirePositiveId(productId); //TODO 👈
         requirePositive(quantity, "quantity");  // TODO 👈
 

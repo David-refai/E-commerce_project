@@ -15,9 +15,11 @@ import java.util.Scanner;
 public class AppRouter implements CommandLineRunner {
 
     private final CustomerCli customerCli;
+    private final OrderCli orderCli;
 
-    public AppRouter(CustomerCli customerCli) {
+    public AppRouter(CustomerCli customerCli, OrderCli orderCli) {
         this.customerCli = customerCli;
+        this.orderCli = orderCli;
     }
 
     @Override
@@ -50,7 +52,7 @@ public class AppRouter implements CommandLineRunner {
         switch (choice) {
             case "1" -> customerCli.showMenu(scanner);  // Delegate to Customer CLI
 //            case "2" -> productCli.showMenu(scanner); // Future extension
-//            case "3" -> orderCli.showMenu(scanner);
+            case "3" -> orderCli.showMenu(scanner);
 //            case "4" -> reportCli.showMenu(scanner);
             case "0" -> {
                 return false;

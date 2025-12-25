@@ -1,14 +1,9 @@
 package org.example.ecommerce_project.services;
 
-import org.example.ecommerce_project.entity.Customer;
-import org.example.ecommerce_project.entity.Order;
-import org.example.ecommerce_project.entity.OrderItem;
-import org.example.ecommerce_project.entity.Product;
-import org.example.ecommerce_project.entity.enums.OrderStatus;
-import org.example.ecommerce_project.repository.CustomerRepo;
-import org.example.ecommerce_project.repository.OrderItemRepo;
-import org.example.ecommerce_project.repository.OrderRepo;
-import org.example.ecommerce_project.repository.ProductRepo;
+import org.example.ecommerce_project.entity.*;
+import org.example.ecommerce_project.entity.enums.*;
+import org.example.ecommerce_project.exception.AppException;
+import org.example.ecommerce_project.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -17,19 +12,16 @@ import java.util.List;
 public class OrderService {
 
     private final OrderRepo orderRepository;
-    private final OrderItemRepo orderItemRepository;
     private final CustomerRepo customerRepository;
     private final ProductRepo productRepository;
     private final InventoryService inventoryService;
 
     public OrderService(OrderRepo orderRepository,
-                        OrderItemRepo orderItemRepository,
                         CustomerRepo customerRepository,
                         ProductRepo productRepository,
                         InventoryService inventoryService
     ) {
         this.orderRepository = orderRepository;
-        this.orderItemRepository = orderItemRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
         this.inventoryService = inventoryService;
@@ -48,7 +40,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public Order getOrder(Long id) {
         return orderRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + id));
+                .orElseThrow(() -> AppException.notFound("Order not found with id: " + id));
     }
 
     /**
@@ -67,36 +59,33 @@ public class OrderService {
     public Order createOrder(Long customerId, List<OrderItemRequest> items) {
 
         if (items == null || items.isEmpty()) {
-//            TODO: Temporary implementation. 👇
-            throw new IllegalArgumentException("items cannot be empty");
+            throw AppException.validation("items cannot be empty");
         }
-//       Customer must exist
+
         Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() ->
-//                        TODO: Temporary implementation. 👇
-                        new IllegalArgumentException("Customer not found with id: " + customerId));
+                .orElseThrow(() -> AppException.notFound("Customer not found with id: " + customerId));
 
         Order order = new Order();
         order.setCustomer(customer);
         order.setStatus(OrderStatus.NEW);
 
-        // Save order first to get ID
         Order savedOrder = orderRepository.save(order);
 
         for (OrderItemRequest req : items) {
-//           Product must exist and be active
             Product product = productRepository.findById(req.productId())
-                    .orElseThrow(() ->
-                            //TODO: Temporary implementation. 👇
-                            new IllegalArgumentException("Product not found with id: " + req.productId()));
+                    .orElseThrow(() -> AppException.notFound("Product not found with id: " + req.productId()));
 
             OrderItem item = buildOrderItem(req, product, savedOrder);
-            orderItemRepository.save(item);
+
+            savedOrder.addItem(item);
         }
 
-        // Order.total will be calculated automatically
-        return orderRepository.save(savedOrder);
+
+        savedOrder.recalcTotal();
+
+        return orderRepository.save(savedOrder); // cascades items
     }
+
 
     private OrderItem buildOrderItem(
             OrderItemRequest req,
@@ -104,15 +93,14 @@ public class OrderService {
             Order order) {
 
         if (!product.isActive()) {
-//            TODO: Temporary implementation. 👇
-            throw new IllegalStateException("Product is not active: " + product.getSku());
-        }
-        // Reserve inventory (throws if not enough)
+            throw AppException.businessRule("Product is not active: " + product.getSku());
 
+         }
+        // Reserve inventory (throws if not enough)
         inventoryService.reserveStock(product.getId(), req.quantity());
 
         OrderItem item = new OrderItem();
-        item.setOrder(order);
+        order.addItem(item);
         item.setProduct(product);
         item.setQty(req.quantity());
         item.setUnitPrice(product.getPrice());
@@ -125,21 +113,24 @@ public class OrderService {
     public void cancelOrder(Long orderId) {
 
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Order not found with id: " + orderId));
+                .orElseThrow(() -> AppException.notFound("Order not found with id: " + orderId));
 
         if (order.getStatus() == OrderStatus.PAID) {
-            throw new IllegalStateException("Cannot cancel a PAID order");
+            throw AppException.businessRule("Order is already PAID");
         }
-
         if (order.getStatus() == OrderStatus.CANCELLED) {
             return;
         }
 
+        if (order.getPayment() != null && order.getPayment().getStatus() == PaymentStatus.PENDING) {
+            order.setPayment(null);
+        }
+
         // Restore inventory
         for (OrderItem item : order.getItems()) {
-            inventoryService.reserveStock(item.getProduct().getId(), item.getQty());
+            inventoryService.releaseStock(item.getProduct().getId(), item.getQty());
         }
+
 
         order.setStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
