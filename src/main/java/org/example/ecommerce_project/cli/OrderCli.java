@@ -3,9 +3,7 @@ package org.example.ecommerce_project.cli;
 import org.example.ecommerce_project.dto.OrderItemRequest;
 import org.example.ecommerce_project.entity.Order;
 import org.example.ecommerce_project.entity.OrderItem;
-import org.example.ecommerce_project.entity.Payment;
 import org.example.ecommerce_project.entity.enums.OrderStatus;
-import org.example.ecommerce_project.entity.enums.PaymentMethod;
 import org.example.ecommerce_project.exception.ErrorHandlerCli;
 import org.example.ecommerce_project.services.OrderService;
 import org.example.ecommerce_project.services.PaymentService;
@@ -19,14 +17,11 @@ import java.util.Scanner;
 public class OrderCli {
 
     private final OrderService orderService;
-    private final PaymentService paymentService;
-
     // Centralized error handling (set true for debug)
     private final ErrorHandlerCli errorHandler = new ErrorHandlerCli(false);
 
-    public OrderCli(OrderService orderService, PaymentService paymentService) {
+    public OrderCli(OrderService orderService) {
         this.orderService = orderService;
-        this.paymentService = paymentService;
     }
 
     public void showMenu(Scanner scanner) {
@@ -34,10 +29,8 @@ public class OrderCli {
         System.out.println("==== Order Menu ====");
         System.out.println("1) List all orders");
         System.out.println("2) List orders by status");
-//        System.out.println("3) Create new order");
         System.out.println("3) Show order details");
         System.out.println("4) Cancel order");
-        System.out.println("5) Pay order");
         System.out.println("0) Back");
         System.out.print("Select: ");
 
@@ -47,10 +40,8 @@ public class OrderCli {
         switch (choice) {
             case "1" -> errorHandler.runWithHandling(this::listOrders);
             case "2" -> errorHandler.runWithHandling(() -> listOrdersByStatus(scanner));
-//            case "3" -> errorHandler.runWithHandling(() -> createOrder(scanner));
             case "3" -> errorHandler.runWithHandling(() -> showOrderDetails(scanner));
             case "4" -> errorHandler.runWithHandling(() -> cancelOrder(scanner));
-            case "5" -> errorHandler.runWithHandling(() -> payOrder(scanner));
             case "0" -> {
                 // back
             }
@@ -133,7 +124,6 @@ public class OrderCli {
             System.out.println("No items, order not created.");
             return;
         }
-
         Order order = orderService.createOrder(customerId, items);
         System.out.println("Order created with id: " + order.getId() + ", total: " + order.getTotal());
     }
@@ -177,22 +167,4 @@ public class OrderCli {
         System.out.println("Order cancelled: " + orderId);
     }
 
-    private void payOrder(Scanner scanner) {
-        System.out.print("Order ID to pay: ");
-        Long orderId = Long.parseLong(scanner.nextLine().trim());
-
-        System.out.print("Payment method (CARD/INVOICE): ");
-        PaymentMethod method = PaymentMethod.valueOf(scanner.nextLine().trim().toUpperCase());
-        Payment payment = paymentService.createPayment(orderId, method);
-        System.out.println("Payment result: " + payment.getStatus());
-
-
-        System.out.print("Approve payment? (y/n): ");
-        boolean approve = scanner.nextLine().trim().equalsIgnoreCase("y");
-        if (approve) {
-            paymentService.approvePayment(orderId);
-        }else {
-            paymentService.declinePayment(orderId);
-        }
     }
-}

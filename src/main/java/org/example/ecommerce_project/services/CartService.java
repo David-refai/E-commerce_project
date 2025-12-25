@@ -2,6 +2,7 @@ package org.example.ecommerce_project.services;
 
 import org.example.ecommerce_project.cart.Cart;
 import org.example.ecommerce_project.entity.Product;
+import org.example.ecommerce_project.exception.AppException;
 import org.example.ecommerce_project.repository.ProductRepo;
 import org.springframework.stereotype.Service;
 
@@ -30,13 +31,13 @@ public class CartService {
 
     // Add to cart with stock check
     public void addToCart(Long customerId, Long productId, int qty) {
-        if (qty <= 0) throw new IllegalArgumentException("qty must be positive");
+        if (qty <= 0) throw AppException.validation("qty must be positive");
 
         Product product = productRepo.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
+                .orElseThrow(() ->  AppException.notFound("Product not found: " + productId));
 
         if (!product.isActive()) {
-            throw new IllegalStateException("Product is not active: " + product.getSku());
+            throw AppException.businessRule("Product is not active: " + product.getSku());
         }
 
         Cart cart = getCart(customerId);

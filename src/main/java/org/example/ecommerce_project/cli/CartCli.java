@@ -5,6 +5,7 @@ import org.example.ecommerce_project.cart.CartItem;
 import org.example.ecommerce_project.entity.Order;
 import org.example.ecommerce_project.entity.Product;
 import org.example.ecommerce_project.entity.enums.PaymentMethod;
+import org.example.ecommerce_project.exception.AppException;
 import org.example.ecommerce_project.repository.ProductRepo;
 import org.example.ecommerce_project.services.CartService;
 import org.example.ecommerce_project.services.CheckoutService;
@@ -48,14 +49,20 @@ public class CartCli {
             showMenu();
 
             String cmd = sc.nextLine().trim();
-            switch (cmd) {
-                case "1" -> selectCustomer(sc);
-                case "2" -> add(sc);
-                case "3" -> remove(sc);
-                case "4" -> show();
-                case "5" -> checkout(sc);
-                case "0" -> running = false;
-                default -> System.out.println("Unknown option.");
+            try {
+                switch (cmd) {
+                    case "1" -> selectCustomer(sc);
+                    case "2" -> add(sc);
+                    case "3" -> remove(sc);
+                    case "4" -> show();
+                    case "5" -> checkout(sc);
+                    case "0" -> running = false;
+                    default -> System.out.println("Unknown option.");
+                }
+            } catch (AppException | IllegalArgumentException | IllegalStateException ex) {
+                System.out.println("❌ " + ex.getMessage());
+            } catch (Exception ex) {
+                System.out.println("❌ Unexpected error: " + ex.getMessage());
             }
         }
     }
@@ -149,12 +156,18 @@ public class CartCli {
         System.out.print("Payment method (CARD/INVOICE): ");
         PaymentMethod method = PaymentMethod.valueOf(sc.nextLine().trim().toUpperCase());
 
-        Order order = checkoutService.checkout(selectedCustomerId);
+        Order order = checkoutService.checkout(selectedCustomerId, method);
+        System.out.println();
+        System.out.println("ID   | CustomerId | Status    | Total");
+        System.out.println("-----+------------+-----------+-----------");
 
-        // Payment simulation: call your processPayment / or approve/decline flow
-        // If you implemented processPayment(90%):
-//        paymentService.processPayment(order.getId(), method);
-
-        System.out.println("Checkout complete. Order id = " + order.getId());
+            System.out.printf(
+                    "%-4d | %-10d | %-9s | %9.2f%n",
+                    order.getId(),
+                    order.getCustomer().getId(),
+                    order.getStatus(),
+                    order.getTotal()
+            );
     }
+
 }
