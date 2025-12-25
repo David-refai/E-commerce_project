@@ -11,7 +11,6 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "orders")
-
 public class Order {
 
     @Id
@@ -129,5 +128,10 @@ public class Order {
                 ", items=" + items +
                 ", payment=" + payment +
                 '}';
+    }
+
+    // For tests
+    public void setId(Long id) {
+        this.id = id;
     }
 }
