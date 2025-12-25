@@ -136,4 +136,9 @@ public class Product {
     public void removeCategory(Category category) {
         categories.removeIf(c -> Objects.equals(c.getId(), category.getId()));
     }
+
+    // for tests
+    public void setId(Long id) {
+        this.id = id;
+    }
 }
