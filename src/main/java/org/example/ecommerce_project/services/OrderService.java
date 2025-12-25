@@ -1,5 +1,6 @@
 package org.example.ecommerce_project.services;
 
+import org.example.ecommerce_project.dto.OrderItemRequest;
 import org.example.ecommerce_project.entity.*;
 import org.example.ecommerce_project.entity.enums.*;
 import org.example.ecommerce_project.exception.AppException;
@@ -136,5 +137,4 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    public record OrderItemRequest(Long productId, int quantity) {}
 }

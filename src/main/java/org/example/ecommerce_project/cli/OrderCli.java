@@ -1,5 +1,6 @@
 package org.example.ecommerce_project.cli;
 
+import org.example.ecommerce_project.dto.OrderItemRequest;
 import org.example.ecommerce_project.entity.Order;
 import org.example.ecommerce_project.entity.OrderItem;
 import org.example.ecommerce_project.entity.Payment;
@@ -33,10 +34,10 @@ public class OrderCli {
         System.out.println("==== Order Menu ====");
         System.out.println("1) List all orders");
         System.out.println("2) List orders by status");
-        System.out.println("3) Create new order");
-        System.out.println("4) Show order details");
-        System.out.println("5) Cancel order");
-        System.out.println("6) Pay order");
+//        System.out.println("3) Create new order");
+        System.out.println("3) Show order details");
+        System.out.println("4) Cancel order");
+        System.out.println("5) Pay order");
         System.out.println("0) Back");
         System.out.print("Select: ");
 
@@ -46,10 +47,10 @@ public class OrderCli {
         switch (choice) {
             case "1" -> errorHandler.runWithHandling(this::listOrders);
             case "2" -> errorHandler.runWithHandling(() -> listOrdersByStatus(scanner));
-            case "3" -> errorHandler.runWithHandling(() -> createOrder(scanner));
-            case "4" -> errorHandler.runWithHandling(() -> showOrderDetails(scanner));
-            case "5" -> errorHandler.runWithHandling(() -> cancelOrder(scanner));
-            case "6" -> errorHandler.runWithHandling(() -> payOrder(scanner));
+//            case "3" -> errorHandler.runWithHandling(() -> createOrder(scanner));
+            case "3" -> errorHandler.runWithHandling(() -> showOrderDetails(scanner));
+            case "4" -> errorHandler.runWithHandling(() -> cancelOrder(scanner));
+            case "5" -> errorHandler.runWithHandling(() -> payOrder(scanner));
             case "0" -> {
                 // back
             }
@@ -105,7 +106,7 @@ public class OrderCli {
         System.out.print("Customer ID: ");
         Long customerId = Long.parseLong(scanner.nextLine().trim()); // NumberFormatException handled centrally
 
-        List<OrderService.OrderItemRequest> items = new ArrayList<>();
+        List<OrderItemRequest> items = new ArrayList<>();
 
         while (true) {
             System.out.print("Product ID (blank to finish): ");
@@ -125,7 +126,7 @@ public class OrderCli {
                 }
             }
 
-            items.add(new OrderService.OrderItemRequest(productId, qty));
+            items.add(new OrderItemRequest(productId, qty));
         }
 
         if (items.isEmpty()) {

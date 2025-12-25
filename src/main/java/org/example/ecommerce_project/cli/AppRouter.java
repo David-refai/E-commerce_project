@@ -18,11 +18,13 @@ public class AppRouter implements CommandLineRunner {
     private final CustomerCli customerCli;
     private final ProductCli productCli;
     private final OrderCli orderCli;
+    private final CartCli cartCli;
 
-    public AppRouter(CustomerCli customerCli, ProductCli productCli, OrderCli orderCli) {
+    public AppRouter(CustomerCli customerCli, ProductCli productCli, OrderCli orderCli, CartCli cartCli) {
         this.customerCli = customerCli;
         this.productCli = productCli;
         this.orderCli = orderCli;
+        this.cartCli = cartCli;
     }
     @NullMarked
     @Override
@@ -56,7 +58,7 @@ public class AppRouter implements CommandLineRunner {
             case "1" -> customerCli.showMenu(scanner);  // Delegate to Customer CLI
             case "2" -> productCli.showMenu(scanner); // Future extension
             case "3" -> orderCli.showMenu(scanner);
-//            case "4" -> reportCli.showMenu(scanner);
+            case "4" -> cartCli.run(scanner);
             case "0" -> {
                 return false;
             }

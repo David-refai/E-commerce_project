@@ -25,11 +25,7 @@ public class CategoryService {
 
         categoryRepo.findByNameIgnoreCase(category)
                 .ifPresent(existing -> {
-<<<<<<< HEAD
                     throw new IllegalArgumentException("Category already exists with name: " + existing.getName());
-=======
-                    throw new IllegalArgumentException("Category already exists with name: " + category);
->>>>>>> a1d879d4c45bc5c0f6797cc19ec882a6f2ed656c
                 });
 
         return categoryRepo.save(new Category(category));

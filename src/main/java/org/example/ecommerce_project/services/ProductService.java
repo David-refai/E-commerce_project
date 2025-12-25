@@ -5,6 +5,7 @@ import org.example.ecommerce_project.dto.ProductUpdateRequest;
 import org.example.ecommerce_project.entity.Category;
 import org.example.ecommerce_project.entity.Inventory;
 import org.example.ecommerce_project.entity.Product;
+import org.example.ecommerce_project.exception.AppException;
 import org.example.ecommerce_project.repository.ProductRepo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -104,7 +105,7 @@ public class ProductService {
             throw new IllegalArgumentException("SKU must not be blank");
         }
         if (update == null) {
-            throw new IllegalArgumentException("Update request must not be null");
+            throw  AppException.businessRule("Update request must not be null");
         }
 
         return productRepo.findBySku(sku).map(tmp -> {
