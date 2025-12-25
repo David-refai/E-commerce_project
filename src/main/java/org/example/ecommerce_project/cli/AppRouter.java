@@ -1,6 +1,7 @@
 package org.example.ecommerce_project.cli;
 
 
+import org.jspecify.annotations.NullMarked;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -15,13 +16,15 @@ import java.util.Scanner;
 public class AppRouter implements CommandLineRunner {
 
     private final CustomerCli customerCli;
+    private final ProductCli productCli;
     private final OrderCli orderCli;
 
-    public AppRouter(CustomerCli customerCli, OrderCli orderCli) {
+    public AppRouter(CustomerCli customerCli, ProductCli productCli, OrderCli orderCli) {
         this.customerCli = customerCli;
+        this.productCli = productCli;
         this.orderCli = orderCli;
     }
-
+    @NullMarked
     @Override
     public void run(String... args) {
         try (Scanner scanner = new Scanner(System.in)) {
@@ -51,7 +54,7 @@ public class AppRouter implements CommandLineRunner {
 
         switch (choice) {
             case "1" -> customerCli.showMenu(scanner);  // Delegate to Customer CLI
-//            case "2" -> productCli.showMenu(scanner); // Future extension
+            case "2" -> productCli.showMenu(scanner); // Future extension
             case "3" -> orderCli.showMenu(scanner);
 //            case "4" -> reportCli.showMenu(scanner);
             case "0" -> {
