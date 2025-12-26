@@ -210,9 +210,15 @@ BEGIN
             is_active,
             CURRENT_TIMESTAMP - random(1, 365) * INTERVAL '1 day'
         ) RETURNING id INTO product_id;
+<<<<<<< HEAD
 
         -- Add inventory (random stock between 20 and 200)
         in_stock := random(20, 200);
+=======
+        
+        -- Add inventory (random stock between 20 and 80)
+        in_stock := random(20, 80);
+>>>>>>> 72c9b604d590fb5285427ac1ece11334335dba3c
         INSERT INTO inventory (product_id, in_stock)
         VALUES (product_id, in_stock);
 
