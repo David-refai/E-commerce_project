@@ -118,7 +118,7 @@ class OrderServiceTest {
     @Test
     void getOrder_WithExistingId_ShouldReturnOrder() {
         // Arrange
-        when(orderRepository.findById(1L)).thenReturn(Optional.of(testOrder));
+        when(orderRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(testOrder));
 
         // Act
         Order foundOrder = orderService.getOrder(1L);
@@ -131,12 +131,15 @@ class OrderServiceTest {
     @Test
     void getOrder_WithNonExistingId_ShouldThrowException() {
         // Arrange
-        when(orderRepository.findById(999L)).thenReturn(Optional.empty());
+        when(orderRepository.findByIdWithDetails(999L)).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThatThrownBy(() -> orderService.getOrder(999L))
                 .isInstanceOf(AppException.class)
-                .hasMessageContaining("Order not found with id: 999");
+                .hasMessageContaining("Order not found: 999");
+
+        verify(orderRepository).findByIdWithDetails(999L);
+        verifyNoMoreInteractions(orderRepository);
     }
 
     @Test
