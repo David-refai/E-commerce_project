@@ -2,6 +2,7 @@ package org.example.ecommerce_project.services;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.example.ecommerce_project.entity.Customer;
+import org.example.ecommerce_project.exception.AppException;
 import org.example.ecommerce_project.repository.CustomerRepo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,18 +21,18 @@ public class CustomerService {
     @Transactional
     public Customer createCustomer(Customer customer) {
         if (customer == null) {
-            throw new IllegalArgumentException("Customer must not be null");
+            throw AppException.validation("Customer must not be null");
         }
         if (customer.getEmail() == null || customer.getEmail().isBlank()) {
-            throw new IllegalArgumentException("Email must not be blank");
+            throw AppException.validation("Email must not be blank");
         }
         if (customer.getName() == null || customer.getName().isBlank()) {
-            throw new IllegalArgumentException("Name must not be blank");
+            throw AppException.validation("Name must not be blank");
         }
 
         customerRepo.findByEmailIgnoreCase(customer.getEmail())
                 .ifPresent(existing -> {
-                    throw new IllegalArgumentException("Customer with email already exists: " + customer.getEmail());
+                    throw AppException.businessRule("Customer with email already exists: " + customer.getEmail());
                 });
 
         return customerRepo.save(customer);
@@ -40,19 +41,19 @@ public class CustomerService {
     @Transactional(readOnly = true)
     public Customer getCustomerById(Long id) {
         if (id == null) {
-            throw new IllegalArgumentException("Id must not be null");
+            throw AppException.validation("Id must not be null");
         }
         return customerRepo.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Customer not found with id: " + id));
+                .orElseThrow(() -> AppException.notFound("Customer not found with id: " + id));
     }
 
     @Transactional(readOnly = true)
     public Customer getCustomerByEmail(String email) {
         if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("Email must not be blank");
+            throw AppException.validation("Email must not be blank");
         }
         return customerRepo.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new EntityNotFoundException("Customer not found with email: " + email));
+                .orElseThrow(() -> AppException.notFound("Customer not found with email: " + email));
     }
 
     @Transactional(readOnly = true)
@@ -63,10 +64,10 @@ public class CustomerService {
     @Transactional
     public Customer updateCustomer(Long id, Customer updated) {
         if (id == null) {
-            throw new IllegalArgumentException("Id must not be null");
+            throw AppException.validation("Id must not be null");
         }
         if (updated == null) {
-            throw new IllegalArgumentException("Updated customer must not be null");
+            throw AppException.validation("Updated customer must not be null");
         }
 
         Customer existing = getCustomerById(id);
@@ -75,7 +76,7 @@ public class CustomerService {
             customerRepo.findByEmailIgnoreCase(updated.getEmail())
                     .ifPresent(other -> {
                         if (!other.getId().equals(existing.getId())) {
-                            throw new IllegalArgumentException("Customer with email already exists: " + updated.getEmail());
+                            throw AppException.businessRule("Customer with email already exists: " + updated.getEmail());
                         }
                     });
             existing.setEmail(updated.getEmail());
@@ -86,11 +87,5 @@ public class CustomerService {
         }
 
         return customerRepo.save(existing);
-    }
-
-    @Transactional
-    public void deleteCustomer(Long id) {
-        Customer existing = getCustomerById(id);
-        customerRepo.delete(existing);
     }
 }

@@ -2,6 +2,7 @@ package org.example.ecommerce_project.services;
 
 import org.example.ecommerce_project.entity.Inventory;
 import org.example.ecommerce_project.entity.Product;
+import org.example.ecommerce_project.exception.AppException;
 import org.example.ecommerce_project.repository.InventoryRepo;
 import org.example.ecommerce_project.repository.ProductRepo;
 import org.springframework.stereotype.Service;
@@ -27,13 +28,13 @@ public class InventoryService {
      */
     private static void requirePositiveId(Long id) {
         if (id == null || id <= 0) {
-            throw new IllegalArgumentException("productId must be a positive number");
+            throw AppException.validation("productId must be a positive number");
         }
     }
 
     private static void requirePositive(int value, String name) {
         if (value <= 0) {
-            throw new IllegalArgumentException(name + " must be positive");
+            throw AppException.validation(name + " must be positive");
         }
     }
 

@@ -5,6 +5,7 @@ import org.example.ecommerce_project.cart.CartItem;
 import org.example.ecommerce_project.dto.OrderItemRequest;
 import org.example.ecommerce_project.entity.Order;
 import org.example.ecommerce_project.entity.enums.PaymentMethod;
+import org.example.ecommerce_project.exception.AppException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +30,7 @@ public class CheckoutService {
     public Order checkout(Long customerId, PaymentMethod method) {
         Cart cart = cartService.getCart(customerId);
         if (cart.isEmpty()) {
-            throw new IllegalStateException("Cart is empty");
+            throw AppException.validation("Cart is empty");
         }
 
         List<OrderItemRequest> items = new ArrayList<>();
