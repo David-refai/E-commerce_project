@@ -52,7 +52,7 @@ public class CartService {
                 .sum();
 
         if (currentInCart + qty > stock) {
-            throw new IllegalStateException("Not enough stock. In cart: " + currentInCart + ", stock: " + stock);
+            throw AppException.validation("Not enough stock. In cart: " + currentInCart + ", stock: " + stock);
         }
 
         cart.add(productId, qty);
