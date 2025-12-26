@@ -64,9 +64,12 @@ public class OrderService {
      * - Order total is calculated automatically from OrderItems
      */
 
+
     @Transactional
     public Order createOrder(Long customerId, List<OrderItemRequest> items) {
-
+        if (customerId == null || customerId <= 0) {
+            throw AppException.validation("customerId must be positive");
+        }
         if (items == null || items.isEmpty()) {
             throw AppException.validation("items cannot be empty");
         }
@@ -78,20 +81,37 @@ public class OrderService {
         order.setCustomer(customer);
         order.setStatus(OrderStatus.NEW);
 
-        Order savedOrder = orderRepository.save(order);
-
         for (OrderItemRequest req : items) {
+            if (req.quantity() <= 0) {
+                throw AppException.validation("quantity must be positive");
+            }
+
             Product product = productRepository.findById(req.productId())
                     .orElseThrow(() -> AppException.notFound("Product not found with id: " + req.productId()));
 
-            buildOrderItem(req, product, savedOrder);
+            if (!product.isActive()) {
+                throw AppException.businessRule("Product is not active: " + product.getSku());
+            }
+
+            // ✅ reserve inventory using request productId (stable in unit tests)
+            inventoryService.reserveStock(req.productId(), req.quantity());
+
+            OrderItem item = new OrderItem();
+            item.setProduct(product);
+            item.setQty(req.quantity());
+            item.setUnitPrice(product.getPrice());
+
+            item.setLineTotal(product.getPrice()
+                    .multiply(java.math.BigDecimal.valueOf(req.quantity()))
+                    .setScale(2, java.math.RoundingMode.HALF_UP));
+
+            order.addItem(item);
         }
 
-
-        savedOrder.recalcTotal();
-
-        return orderRepository.save(savedOrder); // cascades items
+        order.recalcTotal();
+        return orderRepository.save(order);
     }
+
 
 
     private OrderItem buildOrderItem(
@@ -107,7 +127,6 @@ public class OrderService {
         inventoryService.reserveStock(product.getId(), req.quantity());
 
         OrderItem item = new OrderItem();
-        order.addItem(item);
         item.setProduct(product);
         item.setQty(req.quantity());
         item.setUnitPrice(product.getPrice());
