@@ -3,6 +3,7 @@ package org.example.ecommerce_project.cli;
 
 import org.jspecify.annotations.NullMarked;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.Scanner;
@@ -14,6 +15,7 @@ import java.util.Scanner;
  *  Other services and CLIs can be plugged in here later.
  * */
 @Component
+@Profile("!test")
 public class AppRouter implements CommandLineRunner {
 
     private final CustomerCli customerCli;
