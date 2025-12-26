@@ -6,6 +6,7 @@ import org.example.ecommerce_project.entity.Payment;
 import org.example.ecommerce_project.entity.enums.OrderStatus;
 import org.example.ecommerce_project.entity.enums.PaymentMethod;
 import org.example.ecommerce_project.entity.enums.PaymentStatus;
+import org.example.ecommerce_project.exception.AppException;
 import org.example.ecommerce_project.repository.OrderRepo;
 import org.example.ecommerce_project.repository.PaymentRepo;
 import org.springframework.stereotype.Service;
@@ -29,17 +30,17 @@ public class PaymentService {
     @Transactional
     public Payment processPayment(Long orderId, PaymentMethod method) {
         Order order = orderRepo.findById(orderId)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + orderId));
+                .orElseThrow(() -> AppException.notFound("Order not found with id: " + orderId));
 
         if (order.getStatus() == OrderStatus.PAID) {
-            throw new IllegalStateException("Order is already PAID");
+            throw AppException.validation("Order is already PAID");
         }
         if (order.getStatus() == OrderStatus.CANCELLED) {
-            throw new IllegalStateException("Cannot pay a CANCELLED order");
+            throw AppException.validation("Cannot pay a CANCELLED order");
         }
 
         paymentRepo.findByOrderId(orderId).ifPresent(p -> {
-            throw new IllegalArgumentException("Payment already exists for orderId: " + orderId);
+            throw AppException.businessRule("Payment already exists for orderId: " + orderId);
         });
 
         Payment payment = new Payment();
