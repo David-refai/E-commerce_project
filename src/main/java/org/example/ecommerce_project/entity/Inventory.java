@@ -41,6 +41,10 @@ public class Inventory {
         return product;
     }
 
+    public void setProductId(Long productId) {
+        this.productId = productId;
+    }
+
     public void setProduct(Product product) {
         this.product = product;
     }

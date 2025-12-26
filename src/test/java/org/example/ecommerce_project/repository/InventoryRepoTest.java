@@ -75,6 +75,6 @@ class InventoryRepoTest {
 
         // then
         assertEquals(1, lowStock.size());
-        assertEquals(3, lowStock.get(0).getInStock());
+        assertEquals(3, lowStock.getFirst().getInStock());
     }
 }
