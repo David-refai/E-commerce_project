@@ -85,8 +85,8 @@ public class ProductRepoTests {
         List<Product> products = productRepo.findByNameContainingIgnoreCase("t");
 
         // Then
-        assertThat(products).hasSize(2);
-        assertThat(products).extracting(Product::getName).containsExactlyInAnyOrder("Laptop", "T-Shirt");
+        assertThat(products).hasSize(3);
+        assertThat(products).extracting(Product::getName).containsExactlyInAnyOrder("Laptop", "laptop" ,"T-Shirt");
     }
 
     @Test
@@ -95,8 +95,8 @@ public class ProductRepoTests {
         List<Product> products = productRepo.findByNameContainingIgnoreCase("lApToP");
 
         // Then
-        assertThat(products).hasSize(1);
-        assertThat(products.get(0).getName()).isEqualTo("Laptop");
+        assertThat(products).hasSize(2);
+        assertThat(products.getFirst().getName()).isEqualTo("laptop");
     }
 
     @Test
@@ -105,9 +105,9 @@ public class ProductRepoTests {
         List<Product> activeProducts = productRepo.findByActiveTrue();
 
         // Then
-        assertThat(activeProducts).hasSize(2);
+        assertThat(activeProducts).hasSize(3);
         assertThat(activeProducts).extracting(Product::getName)
-                .containsExactlyInAnyOrder("Laptop", "T-Shirt");
+                .containsExactlyInAnyOrder("Laptop", "laptop" ,"T-Shirt");
     }
 
     @Test

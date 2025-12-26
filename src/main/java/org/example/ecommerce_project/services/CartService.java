@@ -35,7 +35,9 @@ public class CartService {
         if (qty <= 0) throw AppException.validation("qty must be positive");
 
         Product product = productRepo.findById(productId)
-                .orElseThrow(() -> AppException.notFound("Product not found: " + productId));
+                .orElseThrow(() -> AppException.notFound(
+                        "Product not found with id: " + productId
+                ));
 
         if (!product.isActive()) {
             throw AppException.businessRule("Product is not active: " + product.getSku());
