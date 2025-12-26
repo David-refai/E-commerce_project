@@ -40,7 +40,7 @@ public class InventoryService {
 
     private static void requireNonNegative(int value, String name) {
         if (value < 0) {
-            throw new IllegalArgumentException(name + " must be >= 0");
+            throw AppException.validation(name + " must be >= 0");
         }
     }
 
@@ -92,7 +92,7 @@ public class InventoryService {
         int current = inv.getInStock();
 
         if (current < quantity) {
-            throw new IllegalStateException(
+            throw AppException.validation(
                     "Not enough stock for product id: " + productId +
                             ". Available: " + current + ", requested: " + quantity
             );

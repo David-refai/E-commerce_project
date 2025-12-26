@@ -1,6 +1,7 @@
 package org.example.ecommerce_project.services;
 
 import org.example.ecommerce_project.entity.Inventory;
+import org.example.ecommerce_project.exception.AppException;
 import org.example.ecommerce_project.repository.InventoryRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -86,7 +87,7 @@ class InventoryServiceTest {
     @Test
     void reserveStock_whenQtyInvalid_shouldThrow_andNotTouchRepository() {
         assertThatThrownBy(() -> inventoryService.reserveStock(10L, 0))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(AppException.class)
                 .hasMessageContaining("quantity must be positive");
 
         verifyNoInteractions(inventoryRepository);
