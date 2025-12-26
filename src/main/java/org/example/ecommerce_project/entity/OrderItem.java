@@ -37,10 +37,14 @@ public class OrderItem {
 
     @PrePersist
     @PreUpdate
-    void calcTotals() {
-        this.lineTotal = unitPrice
-                .multiply(BigDecimal.valueOf(qty))
-                .setScale(2, RoundingMode.HALF_UP);
+    private void calcLineTotal() {
+        if (unitPrice != null && qty > 0) {
+            this.lineTotal = unitPrice
+                    .multiply(BigDecimal.valueOf(qty))
+                    .setScale(2, java.math.RoundingMode.HALF_UP);
+        } else {
+            this.lineTotal = BigDecimal.ZERO.setScale(2, java.math.RoundingMode.HALF_UP);
+        }
     }
 
     public Long getId() {
@@ -109,5 +113,9 @@ public class OrderItem {
                 ", unitPrice=" + unitPrice +
                 ", lineTotal=" + lineTotal +
                 '}';
+    }
+
+    public void setLineTotal(BigDecimal lineTotal) {
+        this.lineTotal = lineTotal;
     }
 }
