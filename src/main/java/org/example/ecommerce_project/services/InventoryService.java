@@ -115,7 +115,12 @@ public class InventoryService {
             );
         }
 
-        inv.setInStock(current - quantity);
+        int newStock = inv.getInStock() - quantity;
+        inv.setInStock(newStock);
+
+        if (newStock <= 0) {
+            inv.getProduct().setActive(false);
+        }
         return inventoryRepo.save(inv);
     }
 

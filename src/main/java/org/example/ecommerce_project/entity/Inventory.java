@@ -35,6 +35,7 @@ public class Inventory {
 
     public void setInStock(int inStock) {
         this.inStock = inStock;
+
     }
 
     public Product getProduct() {

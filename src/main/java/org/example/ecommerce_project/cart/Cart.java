@@ -1,5 +1,7 @@
 package org.example.ecommerce_project.cart;
 
+import org.example.ecommerce_project.exception.AppException;
+
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -10,13 +12,10 @@ public class Cart {
     private final Map<Long, CartItem> items = new LinkedHashMap<>();
 
     public Cart(Long customerId) {
-        if (customerId == null || customerId <= 0) throw new IllegalArgumentException("customerId must be positive");
+        if (customerId == null || customerId <= 0) throw AppException.validation("customerId must be positive");
         this.customerId = customerId;
     }
 
-    public Long getCustomerId() {
-        return customerId;
-    }
 
     public Collection<CartItem> getItems() {
         return items.values();
