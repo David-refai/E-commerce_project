@@ -69,16 +69,31 @@ public class OrderCli {
     }
 
     private void listOrdersByStatus(Scanner scanner) {
-        System.out.print("Status (NEW/PAID/CANCELLED): ");
-        String statusInput = scanner.nextLine().trim().toUpperCase();
+        errorHandler.runWithHandling(() -> {
+            System.out.print("Status (NEW/PAID/CANCELLED): ");
+            String statusInput = scanner.nextLine().trim().toUpperCase();
 
-        OrderStatus status = OrderStatus.valueOf(statusInput); // IllegalArgumentException handled by ErrorHandlerCli
+            OrderStatus status;
+            try {
+                status = OrderStatus.valueOf(statusInput);
+            } catch (IllegalArgumentException ex) {
+                System.out.println("Validation error: Invalid status. Use NEW, PAID or CANCELLED.");
+                return;
+            }
 
-        List<Order> orders = orderService.listByStatus(status);
-        if (orders.isEmpty()) {
-            System.out.println("No orders found with status: " + status);
-            return;
-        }
+            List<Order> orders = orderService.listByStatus(status);
+            if (orders.isEmpty()) {
+                System.out.println("No orders found with status: " + status);
+                return;
+            }
+
+            // print orders...
+            for (Order o : orders) {
+                System.out.println("Order #" + o.getId() + " status=" + o.getStatus() + " total=" + o.getTotal());
+            }
+        });
+    }
+
 
         for (Order o : orders) {
             System.out.printf(
