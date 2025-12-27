@@ -25,7 +25,12 @@ public class CheckoutService {
         this.paymentService = paymentService;
     }
 
-    // Checkout: create order from cart + simulate payment
+    /**
+     * Genomför checkout: skapar en order från kundvagnen och utför betalning
+     * @param customerId kundens ID
+     * @param method vald betalningsmetod
+     * @return skapad order
+     */
     @Transactional
     public Order checkout(Long customerId, PaymentMethod method) {
         Cart cart = cartService.getCart(customerId);
@@ -38,12 +43,13 @@ public class CheckoutService {
             items.add(new OrderItemRequest(ci.getProductId(), ci.getQty()));
         }
 
+        // Skapar ordern baserat på kundvagnens innehåll
         Order order = orderService.createOrder(customerId, items);
 
-        // Payment simulation (90% approved) updates payment + order status + inventory if declined
+        // Simulerar betalning (uppdaterar orderstatus och lager vid misslyckande)
         paymentService.processPayment(order.getId(), method);
 
-        // Clear cart after successful checkout flow
+        // Tömmer kundvagnen efter lyckad checkout
         cart.clear();
 
         return order;

@@ -24,8 +24,21 @@ public class ProductService {
         this.productRepo = productRepo;
     }
 
+    /**
+     * Skapar en ny produkt med kopplade kategorier och initialt lagersaldo
+     * Validerar indata och säkerställer att SKU är unik
+     *
+     * @param sku produktens SKU
+     * @param name produktnamn
+     * @param description produktbeskrivning
+     * @param price pris > 0
+     * @param categories kategorier att koppla
+     * @param active om produkten är aktiv
+     * @param inStock initialt lagersaldo (>=0)
+     */
     @Transactional
-    public void createProduct(String sku, String name, String description, BigDecimal price, Set<Category> categories, boolean active, int inStock) {
+    public void createProduct(String sku, String name, String description, BigDecimal price,
+                              Set<Category> categories, boolean active, int inStock) {
         if (sku == null || sku.isBlank()) {
             throw AppException.validation("SKU must not be blank");
         }
@@ -55,11 +68,20 @@ public class ProductService {
         productRepo.save(product);
     }
 
+    /**
+     * Hämtar alla produkter
+     * @return lista av produkter
+     */
     @Transactional(readOnly = true)
     public List<Product> getAllProducts() {
         return productRepo.findAll();
     }
 
+    /**
+     * Hämtar produkt via ID, kastar fel om den inte finns
+     * @param id produktens ID
+     * @return produkt
+     */
     @Transactional(readOnly = true)
     public Product getProductById(Long id) {
         if (id == null) {
@@ -69,6 +91,11 @@ public class ProductService {
                 .orElseThrow(() -> AppException.notFound("Product not found with id: " + id));
     }
 
+    /**
+     * Hämtar produkt via SKU, kastar fel om den inte finns
+     * @param sku produktens SKU
+     * @return produkt
+     */
     @Transactional(readOnly = true)
     public Product getProductBySku(String sku) {
         if (sku == null || sku.isBlank()) {
@@ -78,6 +105,11 @@ public class ProductService {
                 .orElseThrow(() -> AppException.notFound("Product not found with SKU: " + sku));
     }
 
+    /**
+     * Söker produkter vars namn innehåller given text (case-insensitive)
+     * @param name del av produktnamn
+     * @return lista av matchande produkter
+     */
     @Transactional(readOnly = true)
     public List<Product> getAllProductsByName(String name) {
         if (name == null || name.isBlank()) {
@@ -86,6 +118,14 @@ public class ProductService {
         return productRepo.findByNameContainingIgnoreCase(name);
     }
 
+    /**
+     * Uppdaterar produktfält baserat på SKU och ett update-objekt
+     * Endast icke-null och giltiga fält uppdateras
+     *
+     * @param sku produktens SKU
+     * @param update värden att uppdatera
+     * @return Optional med uppdaterad produkt, tom om SKU inte finns
+     */
     @Transactional
     public Optional<Product> updateProduct(String sku, ProductUpdateRequest update) {
         if (sku == null || sku.isBlank()) {
@@ -134,6 +174,11 @@ public class ProductService {
         });
     }
 
+    /**
+     * Inaktiverar (disablar) en produkt baserat på SKU
+     * @param sku produktens SKU
+     * @return Optional med uppdaterad produkt, tom om SKU inte finns
+     */
     @Transactional
     public Optional<Product> disableProduct(String sku) {
         return productRepo.findBySku(sku).map(tmp -> {

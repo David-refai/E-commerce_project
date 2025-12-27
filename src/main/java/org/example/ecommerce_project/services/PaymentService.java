@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PaymentService {
+    // Sannolikhet att betalningen godkänns (90%)
     private static final double APPROVE_PROBABILITY = 0.9;
 
     private final OrderRepo orderRepo;
@@ -27,6 +28,16 @@ public class PaymentService {
 
     }
 
+    /**
+     * Behandlar betalning för en order:
+     * - Validerar orderstatus
+     * - Skapar betalning
+     * - Sätter order till PAID vid lyckad betalning
+     * - Återställer lager vid nekad betalning
+     * @param orderId orderns ID
+     * @param method vald betalningsmetod
+     * @return sparad Payment
+     */
     @Transactional
     public Payment processPayment(Long orderId, PaymentMethod method) {
         Order order = orderRepo.findById(orderId)
@@ -72,4 +83,3 @@ public class PaymentService {
     }
 
 }
-
