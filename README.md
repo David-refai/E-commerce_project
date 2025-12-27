@@ -191,22 +191,31 @@ CSV-import används för att snabbt skapa dataset och simulera scenarion (många
 
 ---
 
-## Konfiguration
+## ⌛️ Körning & test (IntelliJ – en gång)
 
-Applikationen konfigurerar databasen i `src/main/resources/application.properties`:
+### 1) Lägg in miljövariabler i IntelliJ (Run Configuration)
+Gå till: **Run → Edit Configurations…**
 
-```properties
-spring.application.name=Ecommerce_project
-spring.datasource.url=jdbc:postgresql://localhost:5432/e_commerce_db
-spring.datasource.username=${USERNAME}
-spring.datasource.password=${PASSWORD_DB}
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=false
-spring.jpa.properties.hibernate.format_sql=false
-```
-##### Applikationen konfigurerar databasen för **`test`**
-```
-spring.datasource.url=jdbc:postgresql://localhost:5432/e_commerce_test_db
-spring.datasource.username=${USERNAME}
-spring.datasource.password=${PASSWORD_DB}
-```
+- För **Spring Boot / mvn spring-boot:run**:
+    - Öppna din run config
+    - Fältet **Environment variables**:
+        - `USERNAME=postgres;PASSWORD_DB=postgres`
+
+- För **JUnit / mvn test** (om du kör tester via IntelliJ):
+    - Öppna din test config (JUnit)
+    - **Environment variables**:
+        - `USERNAME=postgres;PASSWORD_DB=postgres`
+
+### 2) Starta applikationen
+* Kör din Spring Boot run configuration.
+
+**ELLER**
+
+* mvn spring-boot:run
+
+### 3) Kör tester
+* Kör testerna (JUnit i IntelliJ)
+
+**ELLER**
+
+* mvn test

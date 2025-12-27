@@ -64,7 +64,22 @@
     </dependencies>
 
     <build>
+
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.4</version>
+                <configuration>
+                    <environmentVariables>
+                        <!--suppress UnresolvedMavenProperty -->
+                        <USERNAME>${env.USERNAME}</USERNAME>
+                        <!--suppress UnresolvedMavenProperty -->
+                        <PASSWORD_DB>${env.PASSWORD_DB}</PASSWORD_DB>
+                        <!--                    <DB_URL>${env.DB_URL}</DB_URL>-->
+                    </environmentVariables>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
