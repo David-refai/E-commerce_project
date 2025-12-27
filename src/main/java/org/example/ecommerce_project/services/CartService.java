@@ -16,7 +16,7 @@ public class CartService {
     private final ProductRepo productRepo;
     private final InventoryService inventoryService;
 
-    // customerId -> Cart
+    // Sparar kundens kundvagn kopplad till deras ID
     private final Map<Long, Cart> carts = new HashMap<>();
 
     public CartService(ProductRepo productRepo, InventoryService inventoryService) {
@@ -24,13 +24,22 @@ public class CartService {
         this.inventoryService = inventoryService;
     }
 
-    // Get or create cart for customer
+    /**
+     * Hämtar kundens cart, eller skapar en ny om den inte finns
+     * @param customerId kundens ID
+     * @return Cart
+     */
     public Cart getCart(Long customerId) {
         if (customerId == null || customerId <= 0) throw AppException.validation("customerId must be positive");
         return carts.computeIfAbsent(customerId, Cart::new);
     }
 
-    // Add to cart with stock check
+    /**
+     * Lägger till en produkt i kundvagnen efter att ha kollat lagersaldo
+     * @param customerId kundens ID
+     * @param productId produktens ID
+     * @param qty antal att lägga till
+     */
     public void addToCart(Long customerId, Long productId, int qty) {
         if (qty <= 0) throw AppException.validation("qty must be positive");
 
@@ -58,12 +67,22 @@ public class CartService {
         cart.add(productId, qty);
     }
 
+    /**
+     * Tar bort en viss mängd av en produkt från kundvagnen
+     * @param customerId kundens ID
+     * @param productId produktens ID
+     * @param qty antal att ta bort
+     */
     public void removeFromCart(Long customerId, Long productId, int qty) {
         if (qty <= 0) throw AppException.validation("qty must be positive");
         Cart cart = getCart(customerId);
         cart.remove(productId, qty);
     }
 
+    /**
+     * Tar bort allt innehåll i kundens kundvagn
+     * @param customerId kundens ID
+     */
     public void clearCart(Long customerId) {
         getCart(customerId).clear();
     }

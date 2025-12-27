@@ -18,6 +18,11 @@ public class CategoryService {
         this.categoryRepo = categoryRepo;
     }
 
+    /**
+     * Skapar en ny kategori om namnet är giltigt och inte redan finns
+     * @param category kategorins namn
+     * @return den sparade kategorin
+     */
     @Transactional
     public Category createCategory(String category) {
         if (category == null || category.isBlank()) {
@@ -32,6 +37,11 @@ public class CategoryService {
         return categoryRepo.save(new Category(category));
     }
 
+    /**
+     * Hämtar en kategori baserat på namn (case-insensitive)
+     * @param name kategorins namn
+     * @return kategori om den hittas
+     */
     @Transactional(readOnly = true)
     public Category getCategoryByName(String name) {
         if (name == null || name.isBlank()) {
@@ -41,6 +51,10 @@ public class CategoryService {
                 .orElseThrow(() -> AppException.notFound("Category not found with name: " + name));
     }
 
+    /**
+     * Hämtar alla kategorier i databasen
+     * @return lista med kategorier
+     */
     @Transactional(readOnly = true)
     public List<Category> getAllCategories() {
         return categoryRepo.findAll();
