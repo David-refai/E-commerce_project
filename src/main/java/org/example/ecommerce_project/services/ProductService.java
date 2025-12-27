@@ -27,24 +27,24 @@ public class ProductService {
     @Transactional
     public void createProduct(String sku, String name, String description, BigDecimal price, Set<Category> categories, boolean active, int inStock) {
         if (sku == null || sku.isBlank()) {
-            throw new IllegalArgumentException("SKU must not be blank");
+            throw AppException.validation("SKU must not be blank");
         }
         if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("Name must not be blank");
+            throw AppException.validation("Name must not be blank");
         }
         if (description == null || description.isBlank()) {
-            throw new IllegalArgumentException("Description must not be blank");
+            throw AppException.validation("Description must not be blank");
         }
         if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Price must be greater than zero");
+            throw AppException.validation("Price must be greater than zero");
         }
         if (inStock < 0) {
-            throw new IllegalArgumentException("In stock must be greater than or equal to zero");
+            throw AppException.validation("In stock must be greater than or equal to zero");
         }
 
         productRepo.findBySku(sku)
                 .ifPresent(existing -> {
-                    throw new IllegalArgumentException("Product already exists with SKU: " + sku);
+                    throw AppException.businessRule("Product already exists with SKU: " + sku);
                 });
 
         Product product = new Product(sku, name, description, price, active);
@@ -63,46 +63,33 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Product getProductById(Long id) {
         if (id == null) {
-            throw new IllegalArgumentException("Id must not be null");
+            throw AppException.validation("Id must not be null");
         }
         return productRepo.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id));
+                .orElseThrow(() -> AppException.notFound("Product not found with id: " + id));
     }
 
     @Transactional(readOnly = true)
     public Product getProductBySku(String sku) {
         if (sku == null || sku.isBlank()) {
-            throw new IllegalArgumentException("SKU must not be blank");
+            throw AppException.validation("SKU must not be blank");
         }
         return productRepo.findBySku(sku)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found with SKU: " + sku));
+                .orElseThrow(() -> AppException.notFound("Product not found with SKU: " + sku));
     }
 
     @Transactional(readOnly = true)
     public List<Product> getAllProductsByName(String name) {
         if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("Product name must not be blank");
+            throw AppException.validation("Product name must not be blank");
         }
         return productRepo.findByNameContainingIgnoreCase(name);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Product> getAllProductsByActive() {
-        return productRepo.findByActiveTrue();
-    }
-
-    @Transactional(readOnly = true)
-    public List<Product> getAllProductsByCategory(String category) {
-        if (category == null || category.isBlank()) {
-            throw new IllegalArgumentException("Category name must not be blank");
-        }
-        return productRepo.findByCategoryNameIgnoreCase(category);
     }
 
     @Transactional
     public Optional<Product> updateProduct(String sku, ProductUpdateRequest update) {
         if (sku == null || sku.isBlank()) {
-            throw new IllegalArgumentException("SKU must not be blank");
+            throw AppException.validation("SKU must not be blank");
         }
         if (update == null) {
             throw AppException.businessRule("Update request must not be null");
@@ -123,7 +110,7 @@ public class ProductService {
             }
             if (update.getInStock() != null) {
                 if (update.getInStock() < 0) {
-                    throw new IllegalArgumentException("In stock must be greater than or equal to zero");
+                    throw AppException.businessRule("In stock must be greater than or equal to zero");
                 }
                 Inventory inventory = tmp.getInventory();
                 if (inventory == null) {
