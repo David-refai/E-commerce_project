@@ -1,5 +1,7 @@
 package org.example.ecommerce_project.exception;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -25,8 +27,17 @@ public class ErrorHandlerCli {
         } catch (AppException ex) {
             handleAppException(ex);
 
+        } catch (ConstraintViolationException ex) {
+            System.out.println("Validation error:");
+            for (ConstraintViolation<?> v : ex.getConstraintViolations()) {
+                System.out.println("- ❌" + v.getPropertyPath() + ": " + v.getMessage());
+            }
+
+            if (debug) {
+                log.error("Constraint validation error in CLI action", ex);
+            }
+
         } catch (DataAccessException ex) {
-            // Extract the most specific DB/root cause message (avoids repeated getter calls and analyzer warnings)
             Throwable cause = ex.getMostSpecificCause();
 
             String msg;
@@ -40,10 +51,10 @@ public class ErrorHandlerCli {
 
             System.out.println("Database error: " + msg);
 
-            // Log full stack trace only in debug mode
             if (debug) {
                 log.error("Database error in CLI action", ex);
             }
+
         } catch (Exception ex) {
             System.out.println("Unexpected error: " + ex.getMessage());
 
@@ -52,6 +63,7 @@ public class ErrorHandlerCli {
             }
         }
     }
+
 // handleAppException: Handles AppException by type (validation, not found, business rule, etc.),
 // prints the right message for the user, and logs extra details in debug mode.
 
