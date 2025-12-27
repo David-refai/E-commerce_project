@@ -70,7 +70,7 @@ class InventoryServiceTest {
         when(inventoryRepository.findById(productId)).thenReturn(Optional.of(inv));
 
         assertThatThrownBy(() -> inventoryService.reserveStock(productId, 3))
-                .isInstanceOf(IllegalStateException.class)
+                .isInstanceOf(AppException.class)
                 .hasMessageContaining("Not enough stock")
                 .hasMessageContaining("product id: 10")
                 .hasMessageContaining("Available: 2")
