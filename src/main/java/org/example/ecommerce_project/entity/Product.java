@@ -141,4 +141,12 @@ public class Product {
     public void setId(Long id) {
         this.id = id;
     }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setCategories(Set<Category> categories) {
+        this.categories = categories;
+    }
 }
