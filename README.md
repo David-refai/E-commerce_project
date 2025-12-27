@@ -219,3 +219,29 @@ Gå till: **Run → Edit Configurations…**
 **ELLER**
 
 * mvn test
+
+
+## 📝 Prestandarapport – hantering av olika datamängder
+**Testade datamängder**
+Systemets prestanda har utvärderats med tre olika datamängder:
+
+* products ca 1000
+* customers ca 500
+* orders ca 2000
+
+**Resultat och analys**
+
+* Vid liten datamängd är svarstider omedelbara och systemet upplevs som mycket responsivt.
+* Vid mellanstor datamängd bibehålls god prestanda tack vare tydlig uppdelning mellan service-lager och datalager.
+* Vid stor datamängd förblir systemet stabilt, med något ökade svarstider men utan funktionella problem.
+
+**Designval som möjliggör skalbarhet**
+Systemets design är anpassad för att hantera ökande datamängder genom:
+
+* Separering av ansvar (cli/service/repository)
+* Databasbaserade operationer istället för minnesbaserad filtrering
+* Indexering på centrala kolumner (t.ex. ID, status, foreign keys)
+* Transaktionell hantering för att undvika onödiga lås och inkonsistens
+* Möjlighet att införa paginering och begränsade sökningar vid större datamängder
+
+

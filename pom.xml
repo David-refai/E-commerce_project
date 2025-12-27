@@ -73,9 +73,9 @@
                 <configuration>
                     <environmentVariables>
                         <!--suppress UnresolvedMavenProperty -->
-                        <USERNAME>${env.USERNAME}</USERNAME>
+                        <USERNAME>${USERNAME}</USERNAME>
                         <!--suppress UnresolvedMavenProperty -->
-                        <PASSWORD_DB>${env.PASSWORD_DB}</PASSWORD_DB>
+                        <PASSWORD_DB>${PASSWORD_DB}</PASSWORD_DB>
                         <!--                    <DB_URL>${env.DB_URL}</DB_URL>-->
                     </environmentVariables>
                 </configuration>
