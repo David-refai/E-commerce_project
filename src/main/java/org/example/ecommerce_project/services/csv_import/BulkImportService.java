@@ -149,13 +149,7 @@ public class BulkImportService {
 
         replaceCategories(p, categories);
 
-        // Use saveAndFlush temporarily to confirm join-table writes
-        Product saved = productRepository.saveAndFlush(p);
-
-        System.out.println("SAVED product=" + saved.getSku()
-                + " categories=" + saved.getCategories().size());
-
-        return saved;
+        return productRepository.saveAndFlush(p);
     }
 
 
