@@ -2,6 +2,7 @@ package org.example.ecommerce_project.services;
 
 import org.example.ecommerce_project.dto.LowStockRow;
 import org.example.ecommerce_project.dto.TopProductRow;
+import org.example.ecommerce_project.exception.AppException;
 import org.example.ecommerce_project.repository.report.ReportRepo;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +32,7 @@ public class ReportService {
     }
 
     public List<LowStockRow> lowStock(int threshold) {
-        if (threshold < 0) throw new IllegalArgumentException("threshold must be >= 0");
+        if (threshold < 0) throw AppException.validation("threshold must be >= 0");
         return reportRepository.lowStock(threshold);
     }
 
@@ -47,10 +48,10 @@ public class ReportService {
 
     private void validateRange(LocalDate from, LocalDate toExclusive) {
         if (from == null || toExclusive == null) {
-            throw new IllegalArgumentException("from/to dates are required");
+            throw AppException.businessRule("from/to dates are required");
         }
         if (!toExclusive.isAfter(from)) {
-            throw new IllegalArgumentException("'to' must be after 'from'");
+            throw AppException.businessRule("'to' must be after 'from'");
         }
     }
 }
