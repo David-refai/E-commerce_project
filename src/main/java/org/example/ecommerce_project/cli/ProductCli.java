@@ -57,7 +57,7 @@ public class ProductCli {
     }
 
     // Prints all products in a simple table
-    private void listProducts() {
+    public void listProducts() {
         List<Product> products = productService.getAllProducts();
         if (products.isEmpty()) {
             System.out.println("No products found.");

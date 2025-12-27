@@ -21,9 +21,9 @@ public class CartCli {
 
     private final CartService cartService;
     private final CheckoutService checkoutService;
-    private final PaymentService paymentService;
     private final ProductRepo productRepo;
     private final InventoryService inventoryService;
+    private final ProductCli productCli;
 
     // Selected customer for "per kund" cart
     private Long selectedCustomerId;
@@ -31,13 +31,12 @@ public class CartCli {
     public CartCli(
             CartService cartService,
             CheckoutService checkoutService,
-            PaymentService paymentService,
             ProductRepo productRepo,
-            InventoryService inventoryService
+            InventoryService inventoryService, ProductCli productCli
     ) {
         this.cartService = cartService;
         this.checkoutService = checkoutService;
-        this.paymentService = paymentService;
+        this.productCli = productCli;
         this.productRepo = productRepo;
         this.inventoryService = inventoryService;
     }
@@ -99,7 +98,8 @@ public class CartCli {
 
     private void add(Scanner sc) {
         requireCustomerSelected();
-
+        // show all products before user choose
+        productCli.listProducts();
         System.out.print("Product id: ");
         long productId = Long.parseLong(sc.nextLine().trim());
 
