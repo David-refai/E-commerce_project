@@ -95,16 +95,6 @@ public class OrderCli {
     }
 
 
-        for (Order o : orders) {
-            System.out.printf(
-                    "Order %d: customerId=%d, total=%.2f%n",
-                    o.getId(),
-                    o.getCustomer().getId(),
-                    o.getTotal()
-            );
-        }
-    }
-
     private void showOrderDetails(Scanner scanner) {
         System.out.print("Order ID: ");
         Long orderId = Long.parseLong(scanner.nextLine().trim());
