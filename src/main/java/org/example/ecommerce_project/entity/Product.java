@@ -130,11 +130,15 @@ public class Product {
     }
 
     public void addCategory(Category category) {
+        if (category == null) return;
         categories.add(category);
+        category.getProducts().add(this);
     }
 
     public void removeCategory(Category category) {
-        categories.removeIf(c -> Objects.equals(c.getId(), category.getId()));
+        if (category == null) return;
+        categories.remove(category);
+        category.getProducts().remove(this); // sync inverse side
     }
 
     // for tests
@@ -148,5 +152,17 @@ public class Product {
 
     public void setCategories(Set<Category> categories) {
         this.categories = categories;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return isActive() == product.isActive() && Objects.equals(getId(), product.getId()) && Objects.equals(getSku(), product.getSku()) && Objects.equals(getName(), product.getName()) && Objects.equals(getDescription(), product.getDescription()) && Objects.equals(getPrice(), product.getPrice()) && Objects.equals(getCreatedAt(), product.getCreatedAt()) && Objects.equals(items, product.items) && Objects.equals(getInventory(), product.getInventory()) && Objects.equals(getCategories(), product.getCategories());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getSku(), getName(), getDescription(), getPrice(), isActive(), getCreatedAt(), items, getInventory(), getCategories());
     }
 }

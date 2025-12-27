@@ -60,9 +60,10 @@ DECLARE
     in_stock INT;
 BEGIN
     -- Clear existing products if needed
-    -- TRUNCATE TABLE product RESTART IDENTITY CASCADE;
-    -- TRUNCATE TABLE inventory RESTART IDENTITY CASCADE;
-    -- TRUNCATE TABLE product_category RESTART IDENTITY CASCADE;
+    TRUNCATE TABLE product RESTART IDENTITY CASCADE;
+    TRUNCATE TABLE inventory RESTART IDENTITY CASCADE;
+    TRUNCATE TABLE product_category RESTART IDENTITY CASCADE;
+    TRUNCATE TABLE category RESTART IDENTITY CASCADE ;
 
     FOR i IN 1..1000 LOOP
         -- Generate product data

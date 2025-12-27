@@ -135,26 +135,29 @@ public class BulkImportService {
     private Product upsertProduct(String sku, String name, String description,
                                   BigDecimal price, boolean active, Set<Category> categories) {
 
-        return productRepository.findBySku(sku)
-                .map(p -> {
-                    p.setName(name.trim());
-                    p.setDescription(description);
-                    p.setPrice(price);
-                    p.setActive(active);
-                    p.setCategories(categories);
-                    return productRepository.save(p);
-                })
-                .orElseGet(() -> {
-                    Product p = new Product();
-                    p.setSku(sku.trim());
-                    p.setName(name.trim());
-                    p.setDescription(description);
-                    p.setPrice(price);
-                    p.setActive(active);
-                    p.setCategories(categories);
-                    return productRepository.save(p);
-                });
+        Product p = productRepository.findBySku(sku).orElseGet(Product::new);
+
+        // For new product only: SKU must be set once (updatable=false in entity)
+        if (p.getId() == null) {
+            p.setSku(sku.trim());
+        }
+
+        p.setName(name.trim());
+        p.setDescription(description);
+        p.setPrice(price);
+        p.setActive(active);
+
+        replaceCategories(p, categories);
+
+        // Use saveAndFlush temporarily to confirm join-table writes
+        Product saved = productRepository.saveAndFlush(p);
+
+        System.out.println("SAVED product=" + saved.getSku()
+                + " categories=" + saved.getCategories().size());
+
+        return saved;
     }
+
 
     private Set<Category> parseCategories(String categoriesCell) {
         if (categoriesCell == null || categoriesCell.isBlank()) return Set.of();
@@ -190,4 +193,25 @@ public class BulkImportService {
             throw new IllegalArgumentException("Invalid price: " + s);
         }
     }
+
+    private void replaceCategories(Product p, Set<Category> newCats) {
+
+        // remove categories not present
+        Iterator<Category> it = p.getCategories().iterator();
+        while (it.hasNext()) {
+            Category existing = it.next();
+            boolean keep = newCats.stream()
+                    .anyMatch(nc -> nc.getName().equalsIgnoreCase(existing.getName()));
+            if (!keep) {
+                it.remove();                 // remove from product side
+                existing.getProducts().remove(p); // sync inverse
+            }
+        }
+
+        // add new categories
+        for (Category c : newCats) {
+            p.addCategory(c);
+        }
+    }
+
 }

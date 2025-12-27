@@ -1,34 +1,33 @@
 package org.example.ecommerce_project.cli;
 
-
 import org.example.ecommerce_project.services.csv_import.BulkImportService;
 import org.example.ecommerce_project.services.csv_import.ImportReport;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 
 @Component
 public class ImportCli {
 
     private final BulkImportService bulkImportService;
 
+    // keep your current directory
     private final Path importDir = Path.of("src", "main", "java", "org", "example", "ecommerce_project", "data", "imports");
 
     public ImportCli(BulkImportService bulkImportService) {
         this.bulkImportService = bulkImportService;
     }
 
-
-    /** Call this from main menu: opens Import menu (products/categories/customers) */
+    /** Call this from main menu */
     public void showMenu(Scanner sc) {
         System.out.println("Import directory: " + importDir.toAbsolutePath());
+
         boolean running = true;
         while (running) {
             System.out.println("\n=== CSV Import ===");
@@ -49,15 +48,30 @@ public class ImportCli {
     }
 
     public void importProducts(Scanner sc) {
-        importAny(sc, "products", bulkImportService::importProducts);
+        importAny(sc,
+                "products",
+                FileKind.PRODUCTS,
+                new String[]{"sku", "name", "price"}, // minimal required
+                bulkImportService::importProducts
+        );
     }
 
     public void importCategories(Scanner sc) {
-        importAny(sc, "categories", bulkImportService::importCategories);
+        importAny(sc,
+                "categories",
+                FileKind.CATEGORIES,
+                new String[]{"name"},
+                bulkImportService::importCategories
+        );
     }
 
     public void importCustomers(Scanner sc) {
-        importAny(sc, "customers", bulkImportService::importCustomers);
+        importAny(sc,
+                "customers",
+                FileKind.CUSTOMERS,
+                new String[]{"email", "name"},
+                bulkImportService::importCustomers
+        );
     }
 
     // ----------------- core -----------------
@@ -67,10 +81,20 @@ public class ImportCli {
         ImportReport run(Path path, boolean strict);
     }
 
-    private void importAny(Scanner sc, String label, ImportFn fn) {
-        Path csv = chooseCsvFile(sc, importDir);
+    private enum FileKind { PRODUCTS, CATEGORIES, CUSTOMERS }
+
+    private void importAny(Scanner sc, String label, FileKind kind, String[] requiredHeaders, ImportFn fn) {
+        Path csv = chooseCsvFile(sc, importDir, kind);
         if (csv == null) {
             System.out.println("Import cancelled.");
+            return;
+        }
+
+        // Prevent: "Mapping for sku not found..."
+        try {
+            validateCsvHeaders(csv, requiredHeaders);
+        } catch (IllegalArgumentException ex) {
+            System.out.println("Wrong CSV selected for " + label + ": " + ex.getMessage());
             return;
         }
 
@@ -80,9 +104,9 @@ public class ImportCli {
         printReport(label, report);
     }
 
-    // ----------------- helpers -----------------
+    // ----------------- file picking -----------------
 
-    private Path chooseCsvFile(Scanner sc, Path dir) {
+    private Path chooseCsvFile(Scanner sc, Path dir, FileKind kind) {
         if (!Files.exists(dir) || !Files.isDirectory(dir)) {
             System.out.println("Folder not found: " + dir.toAbsolutePath());
             return null;
@@ -93,6 +117,7 @@ public class ImportCli {
             csvFiles = s
                     .filter(Files::isRegularFile)
                     .filter(p -> p.getFileName().toString().toLowerCase().endsWith(".csv"))
+                    .filter(p -> matchesKind(p.getFileName().toString(), kind))
                     .sorted(Comparator.comparing(p -> p.getFileName().toString().toLowerCase()))
                     .collect(Collectors.toList());
         } catch (IOException e) {
@@ -101,11 +126,12 @@ public class ImportCli {
         }
 
         if (csvFiles.isEmpty()) {
-            System.out.println("No CSV files found in: " + dir.toAbsolutePath());
+            System.out.println("No matching CSV files found for " + kind.name().toLowerCase()
+                    + " in: " + dir.toAbsolutePath());
             return null;
         }
 
-        System.out.println("\nAvailable CSV files in: " + dir.toAbsolutePath());
+        System.out.println("\nAvailable CSV files (" + kind.name().toLowerCase() + "):");
         for (int i = 0; i < csvFiles.size(); i++) {
             System.out.printf("%d) %s%n", i + 1, csvFiles.get(i).getFileName());
         }
@@ -116,6 +142,66 @@ public class ImportCli {
 
         return csvFiles.get(choice - 1);
     }
+
+    private boolean matchesKind(String filename, FileKind kind) {
+        String n = filename.toLowerCase();
+        return switch (kind) {
+            case PRODUCTS -> n.contains("product");
+            case CATEGORIES -> n.contains("categor");  // matches category/categories
+            case CUSTOMERS -> n.contains("customer");
+        };
+    }
+
+    // ----------------- header check -----------------
+
+    private void validateCsvHeaders(Path csvPath, String[] requiredHeaders) {
+        String headerLine;
+        try (BufferedReader br = Files.newBufferedReader(csvPath, StandardCharsets.UTF_8)) {
+            headerLine = br.readLine();
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Cannot read file: " + csvPath.getFileName());
+        }
+
+        if (headerLine == null || headerLine.isBlank()) {
+            throw new IllegalArgumentException("Empty CSV (missing header row).");
+        }
+
+        // Split header line and normalize each header:
+        // - trim spaces
+        // - remove BOM
+        // - remove surrounding quotes "..."
+        // - lowercase
+        Set<String> headers = Arrays.stream(headerLine.split(","))
+                .map(String::trim)
+                .map(h -> h.replace("\uFEFF", "")) // BOM
+                .map(h -> stripQuotes(h))
+                .map(String::toLowerCase)
+                .collect(Collectors.toSet());
+
+        List<String> missing = new ArrayList<>();
+        for (String req : requiredHeaders) {
+            if (!headers.contains(req.toLowerCase())) missing.add(req);
+        }
+
+        if (!missing.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Missing header(s): " + String.join(", ", missing) +
+                            ". Found: " + String.join(", ", headers)
+            );
+        }
+    }
+
+    private static String stripQuotes(String s) {
+        if (s == null) return "";
+        s = s.trim();
+        if (s.length() >= 2 && s.startsWith("\"") && s.endsWith("\"")) {
+            return s.substring(1, s.length() - 1).trim();
+        }
+        return s;
+    }
+
+
+    // ----------------- UI helpers -----------------
 
     private int readInt(Scanner sc, String prompt, int min, int max) {
         while (true) {
@@ -160,5 +246,4 @@ public class ImportCli {
             System.out.println("...and " + (r.failed() - 10) + " more errors");
         }
     }
-
 }
