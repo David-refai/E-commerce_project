@@ -17,10 +17,17 @@ public class ReportService {
 
     private final ReportRepo reportRepository;
 
-    public ReportService( ReportRepo reportRepository) {
+    public ReportService(ReportRepo reportRepository) {
         this.reportRepository = reportRepository;
     }
 
+    /**
+     * Hämtar bäst säljande produkter under ett datumintervall
+     * @param topN antal produkter att returnera (default = 5 om <=0)
+     * @param from startdatum (inklusivt)
+     * @param toExclusive slutdatum (exklusivt)
+     * @return lista med toppliste-rader
+     */
     public List<TopProductRow> topProducts(int topN, LocalDate from, LocalDate toExclusive) {
         if (topN <= 0) topN = 5;
         validateRange(from, toExclusive);
@@ -31,11 +38,21 @@ public class ReportService {
         return reportRepository.topProducts(fromTs, toTs, topN);
     }
 
+    /**
+     * Returnerar produkter med lågt lagersaldo under en given gräns
+     * @param threshold gränsvärde för lagersaldo
+     */
     public List<LowStockRow> lowStock(int threshold) {
         if (threshold < 0) throw AppException.validation("threshold must be >= 0");
         return reportRepository.lowStock(threshold);
     }
 
+    /**
+     * Beräknar totala intäkter mellan två datum
+     * Returnerar 0 om inget resultat finns
+     * @param from startdatum
+     * @param toExclusive slutdatum (exklusivt)
+     */
     public BigDecimal revenueBetween(LocalDate from, LocalDate toExclusive) {
         validateRange(from, toExclusive);
 
@@ -46,6 +63,9 @@ public class ReportService {
         return revenue == null ? BigDecimal.ZERO : revenue;
     }
 
+    /**
+     * Validerar att datumintervall är korrekt och att slutdatum är efter startdatum
+     */
     private void validateRange(LocalDate from, LocalDate toExclusive) {
         if (from == null || toExclusive == null) {
             throw AppException.businessRule("from/to dates are required");

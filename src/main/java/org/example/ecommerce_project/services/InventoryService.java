@@ -22,9 +22,7 @@ public class InventoryService {
     }
 
     /**
-     * TODO: Placeholder logic. 👇
-     * Subject to change after full investigation and verification
-     * of requirements and business constraints.
+     * Kontrollerar att produkt-ID är positivt
      */
     private static void requirePositiveId(Long id) {
         if (id == null || id <= 0) {
@@ -32,34 +30,47 @@ public class InventoryService {
         }
     }
 
+    /**
+     * Validerar att ett värde är > 0
+     */
     private static void requirePositive(int value, String name) {
         if (value <= 0) {
             throw AppException.validation(name + " must be positive");
         }
     }
 
+    /**
+     * Validerar att ett värde inte är negativt
+     */
     private static void requireNonNegative(int value, String name) {
         if (value < 0) {
             throw AppException.validation(name + " must be >= 0");
         }
     }
 
+    /**
+     * Hämtar lagersaldo för en produkt, returnerar 0 om ingen rad finns
+     * @param productId produktens ID
+     * @return antal i lager
+     */
     @Transactional(readOnly = true)
     public int getStockForProduct(Long productId) {
-        requirePositiveId(productId); // TODO 👈
+        requirePositiveId(productId);
         return inventoryRepo.findById(productId)
                 .map(Inventory::getInStock)
                 .orElse(0);
     }
 
     /**
-     * Set exact stock value (>= 0). Creates inventory row if missing.
+     * Sätter lagersaldo direkt (>=0), skapar rad om saknas
+     * @param productId produktens ID
+     * @param quantity nytt saldo
+     * @return uppdaterad inventeringsrad
      */
     @Transactional
     public Inventory setStock(Long productId, int quantity) {
-
-        requirePositiveId(productId); // TODO 👈
-        requireNonNegative(quantity, "quantity");  // TODO 👈
+        requirePositiveId(productId);
+        requireNonNegative(quantity, "quantity");
 
         Inventory inv = getOrCreateInventory(productId);
         inv.setInStock(quantity);
@@ -67,12 +78,15 @@ public class InventoryService {
     }
 
     /**
-     * Increase stock by a positive amount. Creates inventory row if missing.
+     * Ökar lagersaldo med ett positivt antal
+     * @param productId produktens ID
+     * @param quantity mängd att lägga till
+     * @return uppdaterad inventeringsrad
      */
     @Transactional
     public Inventory releaseStock(Long productId, int quantity) {
-        requirePositiveId(productId); //TODO 👈
-        requirePositive(quantity, "quantity");  // TODO 👈
+        requirePositiveId(productId);
+        requirePositive(quantity, "quantity");
 
         Inventory inv = getOrCreateInventory(productId);
         inv.setInStock(inv.getInStock() + quantity);
@@ -80,13 +94,16 @@ public class InventoryService {
     }
 
     /**
-     * Reserve (decrease) stock by a positive amount.
-     * Throws if not enough stock. Creates inventory row if missing (0 stock).
+     * Minskar lagersaldo (reservation) med ett positivt antal
+     * Kastar fel om lager saknas
+     * @param productId produktens ID
+     * @param quantity mängd att reservera
+     * @return uppdaterad inventeringsrad
      */
     @Transactional
     public Inventory reserveStock(Long productId, int quantity) {
-        requirePositiveId(productId); // TODO 👈
-        requirePositive(quantity, "quantity"); // TODO 👈
+        requirePositiveId(productId);
+        requirePositive(quantity, "quantity");
 
         Inventory inv = getOrCreateInventory(productId);
         int current = inv.getInStock();
@@ -102,16 +119,21 @@ public class InventoryService {
         return inventoryRepo.save(inv);
     }
 
+    /**
+     * Hämtar produkter med lägre lagersaldo än angiven gräns
+     * @param threshold gränsvärde
+     * @return lista med inventeringsrader
+     */
     @Transactional(readOnly = true)
     public List<Inventory> findLowStock(int threshold) {
-        requireNonNegative(threshold, "threshold"); // TODO 👈
+        requireNonNegative(threshold, "threshold");
         return inventoryRepo.findByInStockLessThan(threshold);
     }
 
     /**
-     * Ensures inventory exists:
-     * - If inventory row exists -> returns it
-     * - If missing -> creates it with 0 stock (and ties it to Product via @MapsId)
+     * Hämtar eller skapar inventeringspost för en produkt
+     * @param productId produktens ID
+     * @return inventeringsrad
      */
     private Inventory getOrCreateInventory(Long productId) {
         return inventoryRepo.findById(productId).orElseGet(() -> {
