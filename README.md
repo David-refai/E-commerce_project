@@ -43,3 +43,10 @@ spring.datasource.password=${PASSWORD_DB}
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=false
 spring.jpa.properties.hibernate.format_sql=false
+```
+##### Applikationen konfigurerar databasen för **`test`**
+```
+spring.datasource.url=jdbc:postgresql://localhost:5432/e_commerce_test_db
+spring.datasource.username=${USERNAME}
+spring.datasource.password=${PASSWORD_DB}
+```
