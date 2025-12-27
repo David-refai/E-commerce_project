@@ -132,13 +132,11 @@ public class Product {
     public void addCategory(Category category) {
         if (category == null) return;
         categories.add(category);
-        category.getProducts().add(this);
     }
 
     public void removeCategory(Category category) {
         if (category == null) return;
         categories.remove(category);
-        category.getProducts().remove(this); // sync inverse side
     }
 
     // for tests

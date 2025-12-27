@@ -57,4 +57,9 @@ public class Category {
     public int hashCode() {
         return name == null ? 0 : name.toLowerCase().hashCode();
     }
+
+    @Override
+    public String toString() {
+        return "Category{id=" + id + ", name='" + name + "'}";
+    }
 }

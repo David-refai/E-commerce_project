@@ -74,7 +74,19 @@ public class ProductService {
      */
     @Transactional(readOnly = true)
     public List<Product> getAllProducts() {
-        return productRepo.findAll();
+        List<Product> products = productRepo.findAll();
+
+        // Defensive: some imported/legacy products might not have inventory yet.
+        // We do NOT persist here (readOnly transaction). This is only to avoid NPE in CLI/views.
+        for (Product p : products) {
+            if (p.getInventory() == null) {
+                Inventory tmp = new Inventory();
+                tmp.setInStock(0);
+                p.setInventory(tmp);
+            }
+        }
+
+        return products;
     }
 
     /**

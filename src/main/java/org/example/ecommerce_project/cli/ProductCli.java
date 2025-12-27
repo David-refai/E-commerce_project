@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.example.ecommerce_project.dto.ProductUpdateRequest;
 import org.example.ecommerce_project.entity.Category;
 import org.example.ecommerce_project.entity.Product;
+import org.example.ecommerce_project.exception.AppException;
 import org.example.ecommerce_project.exception.ErrorHandlerCli;
 import org.example.ecommerce_project.services.CategoryService;
 import org.example.ecommerce_project.services.ProductService;
@@ -133,7 +134,7 @@ public class ProductCli {
                 // Check if the category exists, if not - create it
                 try {
                     category = categoryService.getCategoryByName(categoryName.trim());
-                } catch (EntityNotFoundException e) {
+                } catch (AppException e) {
                     category = categoryService.createCategory(categoryName.trim());
                 }
                 newCategories.add(category);

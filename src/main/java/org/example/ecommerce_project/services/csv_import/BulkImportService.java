@@ -2,6 +2,7 @@ package org.example.ecommerce_project.services.csv_import;
 import org.apache.commons.csv.CSVRecord;
 import org.example.ecommerce_project.entity.Category;
 import org.example.ecommerce_project.entity.Customer;
+import org.example.ecommerce_project.entity.Inventory;
 import org.example.ecommerce_project.entity.Product;
 import org.example.ecommerce_project.repository.CategoryRepo;
 import org.example.ecommerce_project.repository.CustomerRepo;
@@ -98,8 +99,9 @@ public class BulkImportService {
 
                 // categories: "Electronics;Home"
                 Set<Category> categories = parseCategories(optional(r, "categories", ""));
+                int inStock = Integer.parseInt(optional(r, "in_stock", "0"));
 
-                upsertProduct(sku, name, description, price, active, categories);
+                upsertProduct(sku, name, description, price, active, categories, inStock);
                 report.incSuccess();
 
             } catch (Exception ex) {
@@ -133,11 +135,11 @@ public class BulkImportService {
     }
 
     private Product upsertProduct(String sku, String name, String description,
-                                  BigDecimal price, boolean active, Set<Category> categories) {
+                                  BigDecimal price, boolean active,
+                                  Set<Category> categories, int inStock) {
 
         Product p = productRepository.findBySku(sku).orElseGet(Product::new);
 
-        // For new product only: SKU must be set once (updatable=false in entity)
         if (p.getId() == null) {
             p.setSku(sku.trim());
         }
@@ -147,10 +149,19 @@ public class BulkImportService {
         p.setPrice(price);
         p.setActive(active);
 
+        //  categories
         replaceCategories(p, categories);
 
-        return productRepository.saveAndFlush(p);
+        //  inventory
+        if (p.getInventory() == null) {
+            p.setInventory(new Inventory(inStock));
+        } else {
+            p.getInventory().setInStock(inStock);
+        }
+
+        return productRepository.save(p);
     }
+
 
 
     private Set<Category> parseCategories(String categoriesCell) {
